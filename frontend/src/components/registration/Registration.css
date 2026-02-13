@@ -1,0 +1,16 @@
+.auth-form {
+    width: 300px;
+    padding-top:30px;
+    padding-left:20px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction: column;
+    gap:20px;
+    background-color:#4683b3;
+    border:5px solid rgb(3, 10, 13);
+    border-radius:10px
+}
+
+.auth-labels{
+    margin-bottom:15px
+    }
