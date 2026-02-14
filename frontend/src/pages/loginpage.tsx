@@ -1,9 +1,9 @@
-import Registration from "../components/registration/Registration"
+import LoginForm from "../components/authForm/LoginForm/loginForm"
 
-export default function Loginpage() {
+export default function LoginPage() {
     return (
         <>
-           <Registration></Registration>
+           <LoginForm />
         </>
     )
 }
