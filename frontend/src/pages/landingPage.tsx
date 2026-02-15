@@ -3,7 +3,7 @@ export default function LandingPage() {
     const navigate = useNavigate()
     return (
     <div>
-         <button onClick = {() => navigate("/login")}>
+        <button onClick = {() => navigate("/login")}>
             Войти
         </button>
         <button onClick = {() => navigate("/registration")}>

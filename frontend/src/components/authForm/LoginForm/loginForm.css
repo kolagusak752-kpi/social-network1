@@ -1,16 +1,81 @@
-.auth-form {
-    width: 300px;
-    padding-top:30px;
-    padding-left:20px;
-    box-sizing:border-box;
-    display:flex;
-    flex-direction: column;
-    gap:20px;
-    background-color:#4683b3;
-    border:5px solid rgb(3, 10, 13);
-    border-radius:10px
+/* Центруємо все на екрані */
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1e2f 0%, #0f0f1a 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
 }
 
-.auth-labels{
-    margin-bottom:15px
-    }
+/* Контейнер форми */
+.auth-form {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Стилі для лейблів */
+.auth-labels {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: -5px;
+  color: #a0a0c0;
+  display: block;
+}
+
+/* Стилі для інпутів */
+input {
+  width: 100%;
+  padding: 12px 15px;
+  box-sizing: border-box; /* Щоб падінги не розпирали інпут */
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: #fff;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #7d5fff;
+  box-shadow: 0 0 10px rgba(125, 95, 255, 0.3);
+}
+
+/* Кнопка */
+.auth-buttons {
+  margin-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #7d5fff, #67e6dc);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(125, 95, 255, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+}
