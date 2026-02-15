@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: bara
+      POSTGRES_PASSWORD: bash
+      POSTGRES_DB: social_db
+    ports:
+      - '5432:5432'
