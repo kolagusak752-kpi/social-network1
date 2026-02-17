@@ -1,39 +1,63 @@
-import "./registrForm.css"
+import "./registrForm.css";
 import { useState } from "react";
 
 export default function regisrtForm() {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("");
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log(`Login:${login}, Password:${password}, ConfirmPassword:${confirmPassword}`);
+    console.log(
+      `Login:${login}, Password:${password}, ConfirmPassword:${confirmPassword}`,
+    );
   }
   return (
     <>
-      <form className="auth-form" onSubmit={(e) => handleSubmit(e)}>
-        <label className="auth-labels">
-          Логин
-          <input type="text" onChange={(e) => setLogin(e.target.value)}></input>
-        </label>
-        <label className="auth-labels">
-          Пароль
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-          ></input>
-        </label>
-        <label>
-            Подтвердите пароль
+      <div className="auth-container">
+        <form className="auth-form">
+          <h2 className="auth-title">Регистрация</h2>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="login">
+              Логин
+            </label>
             <input
-            type = "password"
-            onChange = {(e) => setConfirmPassword(e.target.value)}>
-            </input>
-        </label>
-        <div className="auth-buttons">
-          <button type="submit">Зарегистрироваться</button>
-        </div>
-      </form>
+              id="login"
+              className="auth-input"
+              type="text"
+              placeholder="Введите логин"
+            />
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="password">
+              Пароль
+            </label>
+            <input
+              id="password"
+              className="auth-input"
+              type="password"
+              placeholder="Введите пароль"
+            />
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="confirmPassword">
+              Подтвердите пароль
+            </label>
+            <input
+              id="confirmPassword"
+              className="auth-input"
+              type="password"
+              placeholder="Повторите пароль"
+            />
+          </div>
+
+          <button type="submit" className="auth-button">
+            Зарегистрироваться
+          </button>
+        </form>
+      </div>
     </>
   );
 }
