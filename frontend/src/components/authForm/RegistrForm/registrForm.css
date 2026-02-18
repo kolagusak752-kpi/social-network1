@@ -10,11 +10,11 @@ html, body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #0f172a; /* Глубокий темно-синий */
+  background-color: #0f172a; 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Карточка регистрации */
+
 .auth-form {
   background: #1e293b;
   padding: 2.5rem;
@@ -33,7 +33,7 @@ html, body {
   font-weight: 700;
 }
 
-/* Поля ввода */
+
 .auth-field {
   display: flex;
   flex-direction: column;
@@ -59,7 +59,7 @@ html, body {
 
 .auth-input:focus {
   outline: none;
-  border-color: #38bdf8; /* Неоновый голубой */
+  border-color: #38bdf8;
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
 }
 
@@ -67,7 +67,7 @@ html, body {
   color: #475569;
 }
 
-/* Кнопка с градиентом */
+
 .auth-button {
   width: 100%;
   padding: 14px;
