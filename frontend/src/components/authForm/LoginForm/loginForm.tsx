@@ -1,5 +1,6 @@
-import "./loginForm.css";
+import "./loginForm.css"
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function LoginForm() {
   const [login, setLogin] = useState("");
@@ -9,26 +10,36 @@ export default function LoginForm() {
     console.log(`Login:${login}, Password:${password}`);
   }
 return (
-    <div className="container">
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <label className="auth-labels">Логін</label>
+  <div className="auth-container">
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <h2 className="auth-title">Вхід</h2>
+      
+      <div className="auth-field">
+        <label className="auth-label" htmlFor="login">Логін</label>
         <input 
+          id="login"
+          className="auth-input"
           type="text" 
-          onChange={(e) => setLogin(e.target.value)} 
           placeholder="Введіть логін..."
+          onChange={(e) => setLogin(e.target.value)}
         />
+      </div>
 
-        <label className="auth-labels">Пароль</label>
+      <div className="auth-field">
+        <label className="auth-label" htmlFor="password">Пароль</label>
         <input
+          id="password"
+          className="auth-input"
           type="password"
-          onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
+          onChange={(e) => setPassword(e.target.value)}
         />
+      </div>
 
-        <div className="auth-buttons">
-          <button type="submit">Увійти</button>
-        </div>
-      </form>
-    </div>
-  );
+      <button type="submit" className="auth-button">Увійти</button>
+      <Link className ="link" to = "/registration">Ще немає акаунту?Зареєструватися</Link>
+    </form>
+  </div>
+);
+
 } 

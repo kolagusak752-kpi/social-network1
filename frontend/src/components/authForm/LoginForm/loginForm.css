@@ -1,81 +1,103 @@
-/* Центруємо все на екрані */
-body {
+
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+
+.auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e1e2f 0%, #0f0f1a 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #ffffff;
+  width: 100%;
+  background-color: #0f172a; 
+  margin: 0;
 }
 
-/* Контейнер форми */
+
 .auth-form {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  padding: 40px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  background: #1e293b;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 350px;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-title {
+  color: #f8fafc;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+
+.auth-field {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  margin-bottom: 1.2rem;
 }
 
-/* Стилі для лейблів */
-.auth-labels {
+.auth-label {
+  color: #94a3b8;
   font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: -5px;
-  color: #a0a0c0;
-  display: block;
+  margin-bottom: 0.5rem;
+  margin-left: 4px;
 }
 
-/* Стилі для інпутів */
-input {
-  width: 100%;
-  padding: 12px 15px;
-  box-sizing: border-box; /* Щоб падінги не розпирали інпут */
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  color: #fff;
-  outline: none;
+
+.auth-input {
+  background: #0f172a;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #f8fafc;
+  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
-input:focus {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: #7d5fff;
-  box-shadow: 0 0 10px rgba(125, 95, 255, 0.3);
+.auth-input:focus {
+  outline: none;
+  border-color: #38bdf8; 
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
 }
 
-/* Кнопка */
-.auth-buttons {
-  margin-top: 10px;
-}
 
-button {
+.auth-button {
   width: 100%;
   padding: 14px;
+  margin-top: 1rem;
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #7d5fff, #67e6dc);
-  color: #fff;
+  border-radius: 8px;
+  color: white;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: opacity 0.3s, transform 0.2s;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(125, 95, 255, 0.4);
+.auth-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.link {
+  display: block;             
+  margin-top: 1.5rem;         
+  text-align: center;
+  color: #94a3b8;            
+  text-decoration: none;     
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;  
 }
 
-button:active {
-  transform: translateY(0);
+.link:hover {
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); 
 }
