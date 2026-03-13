@@ -91,6 +91,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
   async updateTokens(dto: RefreshDto) {
+    
     const payload = await this.jwt
       .verifyAsync(dto.refreshToken, {
         secret: process.env.JWT_SECRET,
@@ -115,7 +116,7 @@ export class AuthService {
   }
   async logout(dto: RefreshDto) {
     const tokenInDb = await this.prisma.refreshToken.findUnique({
-      where: { token: dto.refreshToken },                                       
+      where: { token: dto.refreshToken },
     });
 
     if (!tokenInDb) {
