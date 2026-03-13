@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
 
     if (oldUser) {
       throw new BadRequestException({
-        message: "Пользователь с такой почтой уже зарегистрирован "
+        message: 'Пользователь с такой почтой уже зарегистрирован ',
       });
     }
 
@@ -38,13 +39,12 @@ export class AuthService {
       },
     });
     const tokens = await this.issueTokens(user.id);
-    const {passwordHash, ...userWithoutPassword} = user
+    const { passwordHash, ...userWithoutPassword } = user;
     return {
       user: userWithoutPassword,
       ...tokens,
     };
   }
-
 
   async login(dto: LoginDto) {
     const oldUser = await this.prisma.user.findUnique({
@@ -65,19 +65,67 @@ export class AuthService {
       });
     }
     const tokens = await this.issueTokens(oldUser.id);
-    const {passwordHash, ...userWithoutPassword} = oldUser
-    return {user: userWithoutPassword, ...tokens}
+    const { passwordHash, ...userWithoutPassword } = oldUser;
+    return { user: userWithoutPassword, ...tokens };
   }
 
   private async issueTokens(userId: string) {
-    const data = { id: userId };
-    const accessToken = await this.jwt.signAsync(data, {
-      expiresIn: "15m"
+    const payload = { id: userId };
+    const accessToken = await this.jwt.signAsync(payload, {
+      expiresIn: '15m',
     });
-    const refreshToken = await this.jwt.signAsync(data, {
-      expiresIn:"7d"
-    })
+    const refreshToken = await this.jwt.signAsync(payload, {
+      expiresIn: '7d',
+    });
 
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await this.prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        userId: userId,
+        expiresAt: expiresAt,
+      },
+    });
     return { accessToken, refreshToken };
+  }
+  async updateTokens(dto: RefreshDto) {
+    const payload = await this.jwt
+      .verifyAsync(dto.refreshToken, {
+        secret: process.env.JWT_SECRET,
+      })
+      .catch(() => {
+        throw new UnauthorizedException(
+          'Рефреш токен не валиден или просрочен',
+        );
+      });
+    const tokenInDb = await this.prisma.refreshToken.findUnique({
+      where: { token: dto.refreshToken },
+    });
+    if (!tokenInDb) {
+      throw new UnauthorizedException(
+        'Рефреш токен не найден или уже был использован',
+      );
+    }
+    await this.prisma.refreshToken.delete({
+      where: { id: tokenInDb.id },
+    });
+    return this.issueTokens(payload.id);
+  }
+  async logout(dto: RefreshDto) {
+    const tokenInDb = await this.prisma.refreshToken.findUnique({
+      where: { token: dto.refreshToken },                                       
+    });
+
+    if (!tokenInDb) {
+      throw new UnauthorizedException(
+        'Рефреш токен не найден или уже был использован',
+      );
+    }
+
+    await this.prisma.refreshToken.delete({
+      where: { id: tokenInDb.id },
+    });
   }
 }
