@@ -1,25 +1,31 @@
-interface Auth{
-    email:string,
-    password:string
+interface Auth {
+  email: string;
+  password: string;
 }
 
-export async function login(data:Auth) {
-    const response = await fetch(`http://localhost:4200/auth/login`, {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify(data)
-    })
-    return await response.json()
+export async function login(data: Auth) {
+  const response = await fetch(`/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Ошибка: ${response.status}`);
+  }
+  return await response.json();
 }
-export  async function register(data:Auth) {
-    const response= await fetch(`http://localhost:4200/auth/register`, {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify(data)
-    })
-    return await response.json()
+export async function register(data: Auth) {
+  const response = await fetch(`/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+  return await response.json();
 }
