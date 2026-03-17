@@ -7,6 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 export default function LoginForm() {
   const [loginInput, setLoginInput] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("")
 
   const { checkAuth } = useAuth();
   const navigate = useNavigate();
@@ -15,18 +16,29 @@ export default function LoginForm() {
     event.preventDefault();
 
     try {
-      const res = await login({ email: loginInput, password });
-
-      await checkAuth();
-
+      let deviceId = localStorage.getItem("deviceId")
+      if(!deviceId) {
+        deviceId = crypto.randomUUID()
+        localStorage.setItem("deviceId", deviceId)
+      }
+      await login({ email: loginInput, password,deviceId});
+      await checkAuth()
       navigate("/");
-    } catch (error) {
+    } catch (error:any) {
+      setError(error.message)
       console.log("login error:", error);
     }
   }
+  if(error) {
+    return(
+      <div>
+        {error}
+      </div>
+    )
+  }
   return (
     <div className="auth-container">
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={(e)=>handleSubmit(e)}>
         <h2 className="auth-title">Вхід</h2>
 
         <div className="auth-field">

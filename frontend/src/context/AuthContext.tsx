@@ -14,19 +14,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAuth = async () => {
     setLoading(true);
+    console.log("start")
     try {
       const refreshRes = await fetch("/api/auth/refresh", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include"
       });
 
       if (!refreshRes.ok) {
         throw new Error("Failed to refresh token");
       }
-
+      console.log("dfdsdsd")
       const refreshData = await refreshRes.json();
       const newAccessToken = refreshData.accessToken;
       setAccessToken(newAccessToken);
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       const userData = await userRes.json();
-      
+      console.log(userData)
       setUser(userData);
     } catch (error) {
       console.error(error);

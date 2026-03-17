@@ -38,7 +38,7 @@ export class AuthService {
         username: dto.username,
       },
     });
-    const tokens = await this.issueTokens(user.id);
+    const tokens = await this.issueTokens(user.id, dto.deviceId);
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       user: userWithoutPassword,
@@ -64,12 +64,17 @@ export class AuthService {
         message: 'Неверный пароль',
       });
     }
-    const tokens = await this.issueTokens(oldUser.id);
+    await this.prisma.refreshToken.deleteMany({
+      where: {
+        deviceId: dto.deviceId
+      }
+    })
+    const tokens = await this.issueTokens(oldUser.id,dto.deviceId);
     const { passwordHash, ...userWithoutPassword } = oldUser;
     return { user: userWithoutPassword, ...tokens };
   }
 
-  private async issueTokens(userId: string) {
+  private async issueTokens(userId: string, deviceId:string) {
     const payload = { id: userId };
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
@@ -86,14 +91,14 @@ export class AuthService {
         token: refreshToken,
         userId: userId,
         expiresAt: expiresAt,
+        deviceId:deviceId
       },
     });
     return { accessToken, refreshToken };
   }
-  async updateTokens(dto: RefreshDto) {
-    
+  async updateTokens(refreshToken:any) {
     const payload = await this.jwt
-      .verifyAsync(dto.refreshToken, {
+      .verifyAsync(refreshToken, {
         secret: process.env.JWT_SECRET,
       })
       .catch(() => {
@@ -102,17 +107,18 @@ export class AuthService {
         );
       });
     const tokenInDb = await this.prisma.refreshToken.findUnique({
-      where: { token: dto.refreshToken },
+      where: { token: refreshToken },
     });
     if (!tokenInDb) {
       throw new UnauthorizedException(
         'Рефреш токен не найден или уже был использован',
       );
     }
+    const deviceId = tokenInDb.deviceId
     await this.prisma.refreshToken.delete({
       where: { id: tokenInDb.id },
     });
-    return this.issueTokens(payload.id);
+    return this.issueTokens(payload.id, deviceId);
   }
   async logout(dto: RefreshDto) {
     const tokenInDb = await this.prisma.refreshToken.findUnique({
@@ -124,6 +130,10 @@ export class AuthService {
         'Рефреш токен не найден или уже был использован',
       );
     }
+    await this.prisma.refreshToken.deleteMany({
+      where: {
+        deviceId: dto.deviceId
+      }})
 
     await this.prisma.refreshToken.delete({
       where: { id: tokenInDb.id },

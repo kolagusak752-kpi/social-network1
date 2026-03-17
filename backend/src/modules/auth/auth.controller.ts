@@ -36,7 +36,6 @@ export class AuthController {
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
     return data;
   }
 
@@ -46,7 +45,7 @@ export class AuthController {
     //eslint-disable-next-line
     const refreshToken = req.cookies['refreshToken'];
 
-    const data = await this.authService.updateTokens({ refreshToken });
+    const data = await this.authService.updateTokens(refreshToken);
 
     res.cookie('refreshToken', data.refreshToken, {
       httpOnly: true,
