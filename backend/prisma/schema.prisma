@@ -1,22 +1,31 @@
-generator client {
-  provider = "prisma-client-js"
+model Notification {
+  id         String   @id @default(uuid())
+  
+  recipientId String
+  recipient   User    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  
+  senderId    String?
+  sender      User?   @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  type        NotificationType
+  content     String
+  
+  postId      String?
+  commentId   String?
+  
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([recipientId])
+  @@index([isRead])
+  @@map("notifications")
 }
 
-datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
-}
-
-model User {
-  id           String  @id @default(uuid())
-  email        String  @unique
-  username     String  
-  passwordHash String
-  createdAt    DateTime @default(now())
-
-  refreshTokens RefreshToken[]
-
-  @@map("users")
+enum NotificationType {
+  LIKE        
+  COMMENT       
+  FOLLOW      
+  MENTION     
 }
 
 model RefreshToken {
