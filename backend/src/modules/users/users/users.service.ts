@@ -14,5 +14,8 @@ export class UsersService {
         const { passwordHash, ...UserWithoutPassword } = user;
     return UserWithoutPassword ;
     }
+    async changeAvatar(avatarURL: string, userId: string) {
+        await this.prisma.user.update({where: {id: userId}, data:{avatar: avatarURL}})
+    }
 
 }

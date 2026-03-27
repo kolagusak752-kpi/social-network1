@@ -1,6 +1,18 @@
 import { createContext, useContext, useState, useEffect } from "react";
+interface User {
+  id: number
+  username: string
+  avatar: string | null
+  bio: string | null
+}
+interface AuthContext {
+  user: User | null
+  accessToken: string | null
+  loading: boolean
+  checkAuth: () => void
+  }
 
-const AuthContext = createContext({
+const AuthContext = createContext<AuthContext>({
   user: null,
   accessToken: null,
   loading: true,
