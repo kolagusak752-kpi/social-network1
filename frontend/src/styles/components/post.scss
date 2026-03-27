@@ -1,0 +1,130 @@
+$card-bg: #1e293b; // Колір картки (трохи світліший за фон)
+$text-primary: #f8fafc;
+$text-secondary: #94a3b8;
+$border-light: rgba(255, 255, 255, 0.05);
+
+.post-card {
+  background: $card-bg;
+  border: 1px solid $border-light;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-bottom: 24px; /* Відступ між постами */
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+/* Сіра заглушка замість аватарки */
+.post-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #334155; // Колір заглушки
+  margin-right: 12px;
+  border: 1px solid $border-light;
+}
+
+.post-username {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: $text-primary;
+  cursor: pointer;
+}
+
+.post-username:hover {
+  color: $text-secondary;
+}
+
+.post-more-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: $text-secondary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.post-more-btn:hover {
+  color: $text-primary;
+}
+
+.post-image-container {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Квадратне фото */
+  background-color: #000; /* Чорний фон, якщо фото не завантажилось */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Заповнює квадрат без деформації */
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+}
+
+.post-actions-left {
+  display: flex;
+  gap: 16px;
+}
+
+/* Стиль для кнопок-іконок */
+.action-btn-icon {
+  background: none;
+  border: none;
+  color: $text-primary;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.action-btn-icon:hover {
+  color: $text-secondary;
+}
+
+.action-btn-icon:active {
+  transform: scale(0.9); // Ефект натискання
+}
+
+.post-likes {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0 16px;
+  margin-bottom: 6px;
+  color: $text-primary;
+}
+
+.post-caption {
+  padding: 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  color: $text-primary;
+}
+
+.post-caption .post-username {
+  margin-right: 6px;
+}
+
+.post-time {
+  padding: 0 16px 16px;
+  font-size: 0.75rem;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

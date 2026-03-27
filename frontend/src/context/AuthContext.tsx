@@ -25,7 +25,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!refreshRes.ok) {
-        throw new Error("Failed to refresh token");
+        const errorData = await refreshRes.json()
+        throw new Error(errorData.message)
       }
       console.log("dfdsdsd")
       const refreshData = await refreshRes.json();

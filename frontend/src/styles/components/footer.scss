@@ -1,0 +1,73 @@
+$bg-color: #0f172a;
+$footer-bg: rgba(15, 23, 42, 0.85);
+$text-primary: #f8fafc;
+$text-secondary: #64748b;
+$border-light: rgba(255, 255, 255, 0.1);
+$accent-gradient: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  background: $footer-bg;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid $border-light;
+}
+
+.footer-container {
+  max-width: 470px;
+  margin: 0 auto;
+  height: 60px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.footer-icon {
+  color: $text-secondary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-icon:hover {
+  color: $text-primary;
+  transform: scale(1.1);
+}
+
+.footer-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2;
+}
+
+.footer-add-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: $accent-gradient;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+  transition: transform 0.2s;
+}
+
+.footer-add-btn:hover {
+  transform: scale(1.1) translateY(-2px);
+}
+
+.footer-add-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+}
