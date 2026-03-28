@@ -1,6 +1,18 @@
 import { createContext, useContext, useState, useEffect } from "react";
+interface User {
+  id: number
+  username: string
+  avatar: string | null
+  bio: string | null
+}
+interface AuthContext {
+  user: User | null
+  accessToken: string | null
+  loading: boolean
+  checkAuth: () => void
+  }
 
-const AuthContext = createContext({
+const AuthContext = createContext<AuthContext>({
   user: null,
   accessToken: null,
   loading: true,
@@ -25,7 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!refreshRes.ok) {
-        throw new Error("Failed to refresh token");
+        const errorData = await refreshRes.json()
+        throw new Error(errorData.message)
       }
       console.log("dfdsdsd")
       const refreshData = await refreshRes.json();

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { LoginPage, RegistrPage } from "./pages";
+import { LoginPage, RegistrPage, HomePage, ProfilePage } from "./pages";
 import { useAuth } from "./context/AuthContext";
+import Settings from "./components/Settings/Settings";
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -22,8 +23,9 @@ export default function App() {
 
       {/* protected routes */}
       <Route element={<RequireAuth />}>
-        <Route path="/" element={<h1>Home</h1>} />
-        <Route path="/profile" element={<h1>Profile</h1>} />
+        <Route path="/" element={<HomePage/>} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path = "/settings" element = {<Settings />} />
 
       </Route>
     </Routes>

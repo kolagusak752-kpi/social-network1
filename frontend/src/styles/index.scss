@@ -1,4 +1,8 @@
 @use './pages/loginPage';
+@use './pages/homePage.scss';
+@use './components/header.scss';
+@use './components/post.scss';
+@use './pages/profilePage.scss';
 
 html, body {
   margin: 0;

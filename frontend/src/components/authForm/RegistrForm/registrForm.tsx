@@ -22,7 +22,7 @@ export default function RegistrForm() {
       localStorage.setItem("deviceId", deviceId);
       navigate("/login");
     } catch (error: any) {
-      setError(error.message || "Ошибка регистрации");
+      setError(error.message);
     }
   }
 
