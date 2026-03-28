@@ -3,6 +3,8 @@
 @use './components/header.scss';
 @use './components/post.scss';
 @use './pages/profilePage.scss';
+@use './pages/settingsPage.scss';
+@use './components/settings.scss';
 
 html, body {
   margin: 0;

@@ -4,11 +4,11 @@ export default function Header() {
   return(
     <div className = "header">
       <div className = "nav-buttons">
-        <Link to = "userProfile" className = "profile">
-          <User />
+        <Link to = "userProfile" className = "link">
+          <User className = "nav-btn" />
         </Link>
 
-        <Link to = "/settings"> <Settings />
+        <Link to = "/settings" className="link"> <Settings className="nav-btn" />
         </Link>
       
       </div>

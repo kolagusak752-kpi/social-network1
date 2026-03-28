@@ -1,0 +1,26 @@
+.header {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    background-color: rgb(4, 4, 58);
+    box-shadow: 0 5px 15px 1px rgb(102, 104, 187);
+
+}
+.nav-buttons {
+    margin:80px;
+    display:flex;
+    flex-direction: row;
+    gap:5px;
+}
+.link {
+    width: auto;
+    height: auto;
+}
+.nav-btn{
+    width:30px;
+    height:40px;
+    color:white
+}
