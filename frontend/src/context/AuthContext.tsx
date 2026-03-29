@@ -1,9 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
-interface User {
+export interface User {
   id: number
   username: string
   avatar: string | null
   bio: string | null
+  email: string | null
+  isPrivate: boolean
+  updatedAt: string
+  isVerified: boolean
+  createdAt: string
 }
 interface AuthContext {
   user: User | null
