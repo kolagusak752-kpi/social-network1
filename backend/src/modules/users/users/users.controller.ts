@@ -2,12 +2,13 @@ import { Controller, Req, Post, Get, UseGuards, UseFilters, UseInterceptors, Upl
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { FilesService } from 'src/modules/cdn/files.service';
 import { memoryStorage } from 'multer';
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UsersService, private readonly filesService: FilesService) {}
-  
+
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getProfile(@Req() req: any) {
