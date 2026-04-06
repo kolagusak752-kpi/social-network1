@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { LoginPage, RegistrPage, HomePage, ProfilePage } from "./pages";
 import { useAuth } from "./context/AuthContext";
 import SettingsPage from "./pages/settingsPage";
+import CropContainer from "./components/CropCotainer/CropContainer";
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/" element={<HomePage/>} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path = "/settings" element = {<SettingsPage />} />
+        <Route path = "/editAvatar" element = {<CropContainer />} />
 
       </Route>
     </Routes>

@@ -18,7 +18,6 @@ export class UsersController {
   @Post("changeAvatar")
   @UseInterceptors(FileInterceptor('avatar', { storage: memoryStorage() }))
   async changeAvatar(@UploadedFile() file: Express.Multer.File, @Req() req:any) {
-    console.log('--- ЧТО ПРИШЛО НА БЭК? ---', file);
 
   if (!file) {
     throw new Error('Файл потерялся по дороге!');

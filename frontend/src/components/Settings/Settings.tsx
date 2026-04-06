@@ -1,12 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, } from "react";
 import { useAuth, type User } from "../../context/AuthContext";
+import {useNavigate, useLocation } from "react-router-dom";
 
 export default function Settings() {
+  const location = useLocation()
   const { user, accessToken, checkAuth } = useAuth();
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [avatarURL, setAvatarURL] = useState<string | null>(null);
   const [newUser, setNewUser] = useState<User | null>(user);
-
+  const navigate = useNavigate()
+  useEffect(() => {
+    if(location.state?.croppedImage) {
+      setSelectedAvatar(location.state.croppedImage)
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state])
   useEffect(() => {
     if (selectedAvatar) {
       setAvatarURL(URL.createObjectURL(selectedAvatar));
@@ -27,8 +35,8 @@ export default function Settings() {
   return (
     <div className="main-wrapper-settings">
       <section className="profile-block">
-        <div className="user-avatar">
-          <div className="avatar-image">
+        <div className="user-avatar" >
+          <div className="avatar-image" onClick = {() => navigate("/editAvatar", {state:{avatarURL: avatarURL}})}>
             <img src={avatarURL || user?.avatar || ""} alt="Ава"></img>
           </div>
           <div className="avatar-buttons">
