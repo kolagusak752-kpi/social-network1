@@ -1,15 +1,21 @@
-import { useState, useRef, type ReactEventHandler } from "react";
+import { useState, useEffect, useRef, type ReactEventHandler } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth, type User } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 export default function CropContainer() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const avatarURL= location.state.avatarURL
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {user} = useAuth()
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(false);
   const [scale, setScale] = useState(1);
   const dragStart = useRef({ x: 0, y: 0 });
   const imageRef = useRef(null);
+  const [originalAvatarURL, setOriginalAvatarURL] = useState("");
+  useEffect(() => {
+    if(!location.state?.originalAvatar) return
+    const url = URL.createObjectURL(location.state.originalAvatar);
+    setOriginalAvatarURL(url);
+  }, [location.state?.originalAvatar]);
   function onMouseDown(e: any) {
     setDrag(true);
     dragStart.current = {
@@ -66,18 +72,20 @@ export default function CropContainer() {
       circleSize,
     );
     canvas.toBlob((blob) => {
-        if(!blob) return 
-    const croppedFile = new File ([blob], "avatar.png", {type: "image/png"})
-    navigate("/settings", {state: {
-        croppedImage: croppedFile
-    }})
-        
-    })
+      if (!blob) return;
+      const croppedFile = new File([blob], "avatar.png", { type: "image/png" });
+      navigate("/settings", {
+        state: {
+          croppedAvatar: croppedFile,
+          originalAvatar: location.state.originalAvatar,
+        },
+      });
+    });
   }
   const avatarImgStyle = {
     posititon: "absolute",
     transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-    transformOrigin: "0 0"
+    transformOrigin: "0 0",
   };
   return (
     <div className="wrapper">
@@ -92,14 +100,16 @@ export default function CropContainer() {
         }}
       >
         <img
-          src={avatarURL}
+          src={ originalAvatarURL || user?.avatar }
           style={avatarImgStyle}
           draggable={false}
           ref={imageRef}
         ></img>
         <div className="crop-circle"></div>
       </div>
-      <button className="save-button" onClick = {onSave}>Готово</button>
+      <button className="save-button" onClick={onSave}>
+        Готово
+      </button>
     </div>
   );
 }

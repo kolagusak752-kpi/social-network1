@@ -1,29 +1,41 @@
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, type User } from "../../context/AuthContext";
-import {useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Settings() {
-  const location = useLocation()
+  const location = useLocation();
   const { user, accessToken, checkAuth } = useAuth();
-  const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
-  const [avatarURL, setAvatarURL] = useState<string | null>(null);
+  const [originalAvatar, setOriginalAvatar] = useState<File | null | Blob>(
+    null,
+  );
+  const [originalAvatarURL, setOriginalAvatarURL] = useState<string | null>(
+    null,
+  );
+  const [croppedAvatar, setCroppedAvatar] = useState<File | null | Blob>(null);
+  const [croppedAvatarURL, setCroppedAvatarURL] = useState<string | null>(null);
   const [newUser, setNewUser] = useState<User | null>(user);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
-    if(location.state?.croppedImage) {
-      setSelectedAvatar(location.state.croppedImage)
-      window.history.replaceState({}, document.title)
+    if (location.state?.croppedAvatar) {
+      setCroppedAvatar(location.state.croppedAvatar);
+      const url = URL.createObjectURL(location.state.croppedAvatar);
+      setCroppedAvatarURL(url);
+      if (location.state?.originalAvatar) {
+        setOriginalAvatar(location.state.originalAvatar);
+      }
     }
-  }, [location.state])
+    window.history.replaceState({}, document.title);
+  }, [location.state]);
   useEffect(() => {
-    if (selectedAvatar) {
-      setAvatarURL(URL.createObjectURL(selectedAvatar));
+    if (originalAvatar) {
+      setOriginalAvatarURL(URL.createObjectURL(originalAvatar));
     }
-  }, [selectedAvatar]);
+  }, [originalAvatar]);
   async function handleChangeAvatar() {
     const formData = new FormData();
-    if (selectedAvatar) {
-      formData.append("avatar", selectedAvatar);
+    const fileAvatar = croppedAvatar || originalAvatar;
+    if (fileAvatar) {
+      formData.append("avatar", fileAvatar);
     }
     await fetch("/api/users/changeAvatar", {
       method: "POST",
@@ -35,9 +47,19 @@ export default function Settings() {
   return (
     <div className="main-wrapper-settings">
       <section className="profile-block">
-        <div className="user-avatar" >
-          <div className="avatar-image" onClick = {() => navigate("/editAvatar", {state:{avatarURL: avatarURL}})}>
-            <img src={avatarURL || user?.avatar || ""} alt="Ава"></img>
+        <div className="user-avatar">
+          <div
+            className="avatar-image"
+            onClick={() =>
+              navigate("/editAvatar", {
+                state: { originalAvatar: originalAvatar },
+              })
+            }
+          >
+            <img
+              src={croppedAvatarURL || originalAvatarURL || user?.avatar || ""}
+              alt="Ава"
+            ></img>
           </div>
           <div className="avatar-buttons">
             <input
@@ -45,11 +67,12 @@ export default function Settings() {
               className="input-avatar"
               type="file"
               onChange={(e) => {
-                setSelectedAvatar(e.target.files ? e.target.files[0] : null);
+                setCroppedAvatarURL(null);
+                setOriginalAvatar(e.target.files ? e.target.files[0] : null);
               }}
             />
             <label htmlFor="input-avatar" className="btn-choose-avatar">
-              Змінити аву
+              Вибрати аву
             </label>
             <button
               className="btn-save-avatar"
@@ -60,6 +83,8 @@ export default function Settings() {
           </div>
         </div>
         <form className="user-info">
+          <div className = "users-info-divs">
+          <label>Нікнейм</label>
           <input
             type="text"
             defaultValue={user?.username}
@@ -67,14 +92,30 @@ export default function Settings() {
               setNewUser((prev: any) => ({ ...prev, username: e.target.value }))
             }
           />
-          <input
-            type="text"
+          </div>
+          <div className="users-info-divs">
+          <label>Опис</label>
+          <textarea
+            className="input-description"
             defaultValue={user?.bio === null ? "" : user?.bio}
+            placeholder="Розкажи про себе"
             onChange={(e) =>
               setNewUser((prev: any) => ({ ...prev, bio: e.target.value }))
             }
           />
-          <p>{user?.email}</p>
+          </div>
+          <div className="users-info-divs">
+          <label>Пошта</label>
+          <input
+            type="email"
+            defaultValue={user?.email === null ? "" : user?.email}
+            onChange={(e) =>
+              setNewUser((prev: any) => ({ ...prev, email: e.target.value }))
+            }
+          />
+          </div>
+          <div className = "isPrivateDiv">
+          <label>Приватний</label>
           <input
             type="checkbox"
             defaultChecked={user?.isPrivate}
@@ -85,13 +126,14 @@ export default function Settings() {
               }))
             }
           />
+          </div>
           <button
             onClick={(e) => {
-              e.preventDefault()
+              e.preventDefault();
               handleUpdateProfile();
             }}
           >
-            Зберегти
+            Зберегти зміни
           </button>
         </form>
       </section>
@@ -99,8 +141,15 @@ export default function Settings() {
   );
 
   async function handleUpdateProfile() {
-    if(newUser === null) return
-    const {updatedAt, createdAt, isVerified,email, id,  ...newUserWithoutOthers}  = newUser
+    if (newUser === null) return;
+    const {
+      updatedAt,
+      createdAt,
+      isVerified,
+      email,
+      id,
+      ...newUserWithoutOthers
+    } = newUser;
     const res = await fetch("/api/users/updateProfile", {
       method: "PATCH",
       headers: {
