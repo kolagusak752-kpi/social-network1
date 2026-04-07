@@ -23,8 +23,8 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    const user = await this.authService.register(dto);
-    return user;
+      const user = await this.authService.register(dto);
+      return user;
   }
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
