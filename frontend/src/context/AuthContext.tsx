@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 export interface User {
   id: number
   username: string
-  avatar: string | null
+  avatar: string | undefined
   bio: string | null
   email: string | null
   isPrivate: boolean
@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAuth = async () => {
     setLoading(true);
-    console.log("start")
     try {
       const refreshRes = await fetch("/api/auth/refresh", {
         method: "POST",
@@ -45,7 +44,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const errorData = await refreshRes.json()
         throw new Error(errorData.message)
       }
-      console.log("dfdsdsd")
       const refreshData = await refreshRes.json();
       const newAccessToken = refreshData.accessToken;
       setAccessToken(newAccessToken);
