@@ -39,4 +39,14 @@ export class UsersService {
     const { passwordHash, ...result } = updated;
     return result;
   }
+
+  async checkUsername(username: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+    });
+    if (user) {
+      return true;
+    }
+    return false;
+  }
 }

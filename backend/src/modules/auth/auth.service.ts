@@ -19,6 +19,9 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    try {
+
+    
     const oldUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -44,7 +47,15 @@ export class AuthService {
       user: userWithoutPassword,
       ...tokens,
     };
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      throw new BadRequestException({
+        message: 'Користувач з такою поштою або іменем вже існує',
+      });
+    }
+    throw error;
   }
+}
 
   async login(dto: LoginDto) {
     const oldUser = await this.prisma.user.findUnique({
