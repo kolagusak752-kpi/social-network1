@@ -43,7 +43,7 @@ export class AuthController {
   @Post('refresh')
   async getNewTokens(@Req() req: any, @Res({ passthrough: true }) res: any) {
     //eslint-disable-next-line
-    const refreshToken = req.cookies['refreshToken'];
+    const refreshToken = req.cookies.refreshToken
 
     const data = await this.authService.updateTokens(refreshToken);
 
@@ -58,7 +58,8 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout(@Body() dto: RefreshDto) {
-    return this.authService.logout(dto);
+  logout(@Req() req:any, @Body() deviceId:string) {
+    const refreshToken = req.cookies.refreshToken
+    return this.authService.logout(refreshToken, deviceId);
   }
 }

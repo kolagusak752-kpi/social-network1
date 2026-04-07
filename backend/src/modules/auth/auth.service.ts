@@ -3,6 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
+  Req
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -120,9 +121,9 @@ export class AuthService {
     });
     return this.issueTokens(payload.id, deviceId);
   }
-  async logout(dto: RefreshDto) {
+  async logout( refreshToken, deviceId) { 
     const tokenInDb = await this.prisma.refreshToken.findUnique({
-      where: { token: dto.refreshToken },
+      where: { token: refreshToken },
     });
 
     if (!tokenInDb) {
@@ -132,11 +133,8 @@ export class AuthService {
     }
     await this.prisma.refreshToken.deleteMany({
       where: {
-        deviceId: dto.deviceId
+        deviceId: deviceId,
+        userId: tokenInDb.userId
       }})
-
-    await this.prisma.refreshToken.delete({
-      where: { id: tokenInDb.id },
-    });
   }
 }

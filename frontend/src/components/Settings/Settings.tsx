@@ -14,6 +14,7 @@ export default function Settings() {
   const [croppedAvatar, setCroppedAvatar] = useState<File | null | Blob>(null);
   const [croppedAvatarURL, setCroppedAvatarURL] = useState<string | null>(null);
   const [newUser, setNewUser] = useState<User | null>(user);
+  const [exitDiv, setExitDiv] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     if (location.state?.croppedAvatar) {
@@ -45,99 +46,143 @@ export default function Settings() {
     checkAuth();
   }
   return (
-    <div className="main-wrapper-settings">
-      <section className="profile-block">
-        <div className="user-avatar">
-          <div
-            className="avatar-image"
-            onClick={() =>
-              navigate("/editAvatar", {
-                state: { originalAvatar: originalAvatar },
-              })
-            }
-          >
-            <img
-              src={croppedAvatarURL || originalAvatarURL || user?.avatar || ""}
-              alt="Ава"
-            ></img>
-          </div>
-          <div className="avatar-buttons">
-            <input
-              id="input-avatar"
-              className="input-avatar"
-              type="file"
-              onChange={(e) => {
-                setCroppedAvatarURL(null);
-                setOriginalAvatar(e.target.files ? e.target.files[0] : null);
-              }}
-            />
-            <label htmlFor="input-avatar" className="btn-choose-avatar">
-              Вибрати аву
-            </label>
-            <button
-              className="btn-save-avatar"
-              onClick={() => handleChangeAvatar()}
+    <>
+      <div className="main-wrapper-settings">
+        <section className="profile-block">
+          <div className="user-avatar">
+            <div
+              className="avatar-image"
+              onClick={() =>
+                navigate("/editAvatar", {
+                  state: { originalAvatar: originalAvatar },
+                })
+              }
             >
-              Зберегти
+              <img
+                src={
+                  croppedAvatarURL || originalAvatarURL || user?.avatar || ""
+                }
+                alt="Ава"
+              ></img>
+            </div>
+            <div className="avatar-buttons">
+              <input
+                id="input-avatar"
+                className="input-avatar"
+                type="file"
+                onChange={(e) => {
+                  setCroppedAvatarURL(null);
+                  setOriginalAvatar(e.target.files ? e.target.files[0] : null);
+                }}
+              />
+              <label htmlFor="input-avatar" className="btn-choose-avatar">
+                Вибрати аву
+              </label>
+              <button
+                className="btn-save-avatar"
+                onClick={() => handleChangeAvatar()}
+              >
+                Зберегти
+              </button>
+            </div>
+          </div>
+          <form className="user-info">
+            <div className="users-info-divs">
+              <label>Нікнейм</label>
+              <input
+                type="text"
+                defaultValue={user?.username}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    username: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="users-info-divs">
+              <label>Опис</label>
+              <textarea
+                className="input-description"
+                defaultValue={user?.bio === null ? "" : user?.bio}
+                placeholder="Розкажи про себе"
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({ ...prev, bio: e.target.value }))
+                }
+              />
+            </div>
+            <div className="users-info-divs">
+              <label>Пошта</label>
+              <input
+                type="email"
+                defaultValue={user?.email === null ? "" : user?.email}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="isPrivateDiv">
+              <label>Приватний</label>
+              <input
+                type="checkbox"
+                defaultChecked={user?.isPrivate}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    isPrivate: e.target.checked,
+                  }))
+                }
+              />
+            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleUpdateProfile();
+              }}
+            >
+              Зберегти зміни
             </button>
-          </div>
-        </div>
-        <form className="user-info">
-          <div className = "users-info-divs">
-          <label>Нікнейм</label>
-          <input
-            type="text"
-            defaultValue={user?.username}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, username: e.target.value }))
-            }
-          />
-          </div>
-          <div className="users-info-divs">
-          <label>Опис</label>
-          <textarea
-            className="input-description"
-            defaultValue={user?.bio === null ? "" : user?.bio}
-            placeholder="Розкажи про себе"
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, bio: e.target.value }))
-            }
-          />
-          </div>
-          <div className="users-info-divs">
-          <label>Пошта</label>
-          <input
-            type="email"
-            defaultValue={user?.email === null ? "" : user?.email}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, email: e.target.value }))
-            }
-          />
-          </div>
-          <div className = "isPrivateDiv">
-          <label>Приватний</label>
-          <input
-            type="checkbox"
-            defaultChecked={user?.isPrivate}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({
-                ...prev,
-                isPrivate: e.target.checked,
-              }))
-            }
-          />
-          </div>
+          </form>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleUpdateProfile();
+              onClick={() => {
+                setExitDiv(true);
+              }}
+            >
+              Вийти з акаунту
+            </button>
+        </section>
+      </div>
+      {exitDiv && (
+        <div tabIndex= {0}
+          className="exit-container"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setExitDiv(false);
+            }
+          }}
+        >
+          <button
+            onClick={() => {
+              setExitDiv(false);
             }}
           >
-            Зберегти зміни
+            Ні
           </button>
-        </form>
-      </section>
-    </div>
+          <button onClick = {async () => {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+              body: JSON.stringify({deviceId:localStorage.getItem("deviceId")})
+              
+            })
+            await checkAuth()
+          }}>Так</button>
+        </div>
+      )}
+    </>
   );
 
   async function handleUpdateProfile() {
