@@ -28,8 +28,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('updateProfile')
-
   async updateProfile(@Body() dto: UpdateProfileDto, @Req() req: any) {
     return this.userService.update(req.user.id, dto);
+  }
+
+  @Post("checkUsername")
+  async checkUsername(@Body() dto: {username: string}) {
+    const exists = await this.userService.checkUsername(dto.username);
+    return { exists };
   }
 }

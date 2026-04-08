@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 export default function Settings() {
   const location = useLocation();
   const { user, accessToken, checkAuth } = useAuth();
+  const [avatarIsSaved, setAvaIsSаved] = useState(false);
   const [originalAvatar, setOriginalAvatar] = useState<File | null | Blob>(
     null,
   );
@@ -21,10 +22,11 @@ export default function Settings() {
       setCroppedAvatar(location.state.croppedAvatar);
       const url = URL.createObjectURL(location.state.croppedAvatar);
       setCroppedAvatarURL(url);
-      if (location.state?.originalAvatar) {
-        setOriginalAvatar(location.state.originalAvatar);
-      }
     }
+    if (location.state?.originalAvatar) {
+      setOriginalAvatar(location.state.originalAvatar);
+    }
+
     window.history.replaceState({}, document.title);
   }, [location.state]);
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function Settings() {
       headers: { Authorization: `Bearer ${accessToken}` },
       body: formData,
     });
-    checkAuth();
+    await checkAuth();
   }
   return (
     <>
@@ -78,12 +80,18 @@ export default function Settings() {
               <label htmlFor="input-avatar" className="btn-choose-avatar">
                 Вибрати аву
               </label>
-              <button
-                className="btn-save-avatar"
-                onClick={() => handleChangeAvatar()}
-              >
-                Зберегти
-              </button>
+              <div className="save-avatar">
+                <button
+                  className="btn-save-avatar"
+                  onClick={() => {
+                    handleChangeAvatar();
+                    setAvaIsSаved(true);
+                  }}
+                >
+                  Зберегти
+                  {avatarIsSaved && <p>Аву збережено</p>}
+                </button>
+              </div>
             </div>
           </div>
           <form className="user-info">
@@ -103,6 +111,7 @@ export default function Settings() {
             <div className="users-info-divs">
               <label>Опис</label>
               <textarea
+                maxLength={140}
                 className="input-description"
                 defaultValue={user?.bio === null ? "" : user?.bio}
                 placeholder="Розкажи про себе"
@@ -138,6 +147,7 @@ export default function Settings() {
               />
             </div>
             <button
+              className="btn-save-changes"
               onClick={(e) => {
                 e.preventDefault();
                 handleUpdateProfile();
@@ -147,39 +157,51 @@ export default function Settings() {
             </button>
           </form>
           <button
-              onClick={() => {
-                setExitDiv(true);
-              }}
-            >
-              Вийти з акаунту
-            </button>
+            className="btn-leave-acc"
+            onClick={() => {
+              setExitDiv(true);
+            }}
+          >
+            Вийти з акаунту
+          </button>
         </section>
       </div>
       {exitDiv && (
-        <div tabIndex= {0}
-          className="exit-container"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              setExitDiv(false);
-            }
-          }}
-        >
-          <button
-            onClick={() => {
-              setExitDiv(false);
+        <div className="exit-overlay">
+          <div
+            tabIndex={0}
+            className="exit-container"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setExitDiv(false);
+              }
             }}
           >
-            Ні
-          </button>
-          <button onClick = {async () => {
-            await fetch("/api/auth/logout", {
-              method: "POST",
-              credentials: "include",
-              body: JSON.stringify({deviceId:localStorage.getItem("deviceId")})
-              
-            })
-            await checkAuth()
-          }}>Так</button>
+            Ви впевнені?
+            <div className="exit-buttons">
+              <button
+                onClick={() => {
+                  setExitDiv(false);
+                }}
+              >
+                Ні
+              </button>
+              <button
+                onClick={async () => {
+                  await fetch("/api/auth/logout", {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({
+                      deviceId: localStorage.getItem("deviceId"),
+                    }),
+                  });
+                  await checkAuth();
+                }}
+              >
+                Так
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
@@ -204,6 +226,5 @@ export default function Settings() {
       body: JSON.stringify(newUserWithoutOthers),
     });
     const data = await res.json();
-    console.log(data);
   }
 }
