@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAccessToken(null)
       console.error(error);
     } finally {
-      setLoading(false);
+         setLoading(false);
     }
   };
 

@@ -225,6 +225,6 @@ export default function Settings() {
       },
       body: JSON.stringify(newUserWithoutOthers),
     });
-    const data = await res.json();
+    await checkAuth()
   }
 }
