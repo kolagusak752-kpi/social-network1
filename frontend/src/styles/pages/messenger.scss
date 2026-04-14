@@ -1,0 +1,17 @@
+@use '../variables/root' as v;
+.messenger {
+  background-color: v.$main-bg;
+  height: 100vh;
+  width: 100%;
+  .chat-list {
+    padding: 36px;
+  }
+  .chat-item {
+    font-size: 2.5rem;
+    border: 0;
+    background-color: v.$main-bg;
+    outline: none;
+    text-decoration: none;
+    cursor: pointer;
+  }
+}

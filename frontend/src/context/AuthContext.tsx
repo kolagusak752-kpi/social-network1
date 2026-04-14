@@ -1,21 +1,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
 export interface User {
-  id: number
-  username: string
-  avatar: string | undefined
-  bio: string | null
-  email: string | null
-  isPrivate: boolean
-  updatedAt: string
-  isVerified: boolean
-  createdAt: string
+  id: number;
+  username: string;
+  avatar: string | undefined;
+  bio: string | null;
+  email: string | null;
+  isPrivate: boolean;
+  updatedAt: string;
+  isVerified: boolean;
+  createdAt: string;
 }
 interface AuthContext {
-  user: User | null
-  accessToken: string | null
-  loading: boolean
-  checkAuth: () => void
-  }
+  user: User | null;
+  accessToken: string | null;
+  loading: boolean;
+  checkAuth: () => void;
+}
 
 const AuthContext = createContext<AuthContext>({
   user: null,
@@ -37,12 +37,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include"
+        credentials: "include",
       });
 
       if (!refreshRes.ok) {
-        const errorData = await refreshRes.json()
-        throw new Error(errorData.message)
+        const errorData = await refreshRes.json();
+        throw new Error(errorData.message);
       }
       const refreshData = await refreshRes.json();
       const newAccessToken = refreshData.accessToken;
@@ -62,14 +62,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       const userData = await userRes.json();
-      console.log(userData)
+      console.log(userData);
       setUser(userData);
     } catch (error) {
-      setUser(null)
-      setAccessToken(null)
+      setUser(null);
+      setAccessToken(null);
       console.error(error);
     } finally {
-         setLoading(false);
+      setLoading(false);
     }
   };
 

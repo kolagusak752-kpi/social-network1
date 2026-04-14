@@ -1,0 +1,15 @@
+{
+  "name": "social-network",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend,cdn -c blue,green,magenta \"npm:dev:backend\" \"npm:dev:frontend\" \"npm:dev:cdn\"",
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:cdn": "npm --prefix cdn run start:dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install && npm --prefix cdn install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
