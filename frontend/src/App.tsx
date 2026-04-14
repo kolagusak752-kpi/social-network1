@@ -4,6 +4,8 @@ import { useAuth } from "./context/AuthContext";
 import SettingsPage from "./pages/settingsPage";
 import CropContainer from "./components/CropCotainer/CropContainer";
 import Loader from "./components/Loading/Loader";
+import Messenger from "./pages/messenger";
+import DefaultLayout from "./layouts/DefaultLayout";
 
 function RequireAuth() {
   const { user, loading } = useAuth();
@@ -30,10 +32,13 @@ export default function App() {
 
       {/* protected routes */}
       <Route element={<RequireAuth />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/editAvatar" element={<CropContainer />} />
+        <Route element={<DefaultLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/editAvatar" element={<CropContainer />} />
+          <Route path="/messenger" element={<Messenger />} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -9,6 +9,11 @@ import { UpdateProfileDto } from './dto/updateProfile.dto';
 export class UsersController {
   constructor(private readonly userService: UsersService, private readonly filesService: FilesService) {}
 
+  @Get('all')
+  async getAllUsers() {
+    return this.userService.getAllUsers();
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getProfile(@Req() req: any) {
@@ -36,5 +41,10 @@ export class UsersController {
   async checkUsername(@Body() dto: {username: string}) {
     const exists = await this.userService.checkUsername(dto.username);
     return { exists };
+  }
+
+  @Post("getProfileById")
+  async getProfileById(@Body() dto: {id: string}) {
+    return this.userService.findUserById(dto.id);
   }
 }

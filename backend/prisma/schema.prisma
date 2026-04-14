@@ -24,6 +24,9 @@ model User {
   posts         Post[]
   likes         Like[]
   comments      Comment[]
+
+  participants  Participant[]
+  messages      Message[]
   
   followers     Follow[]     @relation("UserFollowers")
   following     Follow[]     @relation("UserFollowing")
@@ -190,4 +193,35 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@map("refresh_tokens")
+}
+
+model Conversation {
+  id            String   @id @default(uuid())
+  participants  Participant[]   
+  createdAt     DateTime @default(now())
+  messages      Message[]
+}
+
+model Participant {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade) 
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id              String   @id @default(uuid())
+  senderId        String
+  sender          User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  message         String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }

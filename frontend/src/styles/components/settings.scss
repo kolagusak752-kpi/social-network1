@@ -1,6 +1,8 @@
+  @use '../variables/root' as v;
+
 .main-wrapper-settings {
     height: 100vh;
-    background-color: rgb(8, 13, 43);
+    background-color: v.$main-bg;
     box-sizing: border-box;
     padding:50px 0 0 30px
 }
@@ -120,15 +122,16 @@
     }
 
 }
-button:hover {
-    transform:translate(0px,-5px);
-    box-shadow:0 1px 5px rgb(4, 4, 58); 
-}
+
 .user-info {
     max-width: 250px;
     display: flex;
     flex-direction: column;
-    gap: 20px
+    gap: 20px;
+    button:hover {
+    transform:translate(0px,-5px);
+    box-shadow:0 1px 5px rgb(4, 4, 58); 
+}
 }
 .input-description {
    font-style: inherit;
@@ -157,15 +160,17 @@ button:hover {
     gap: 3px;
     input {
         color: azure;
-        background-color: rgb(8, 13, 43);
-        outline: 1px solid azure;
-        outline-offset: 0px;
+        background-color: v.$main-bg;
+        border: 1xp solid v.$main-header;
+        outline: none;
+        // outline-offset: 0px;
+        text-decoration: none;
     }
     textarea{
         color:azure;
-        outline: 1px solid azure;
-        outline-offset: 0px;
-        background-color: rgb(8, 13, 43);
+        // outline: 1px solid azure;
+        // outline-offset: 0px;
+        background-color: v.$main-bg;
 
     }
 }
