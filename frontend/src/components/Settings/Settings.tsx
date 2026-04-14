@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 export default function Settings() {
   const location = useLocation();
   const { user, accessToken, checkAuth } = useAuth();
+  const [avatarIsSaved, setAvaIsSаved] = useState(false);
   const [originalAvatar, setOriginalAvatar] = useState<File | null | Blob>(
     null,
   );
@@ -14,16 +15,18 @@ export default function Settings() {
   const [croppedAvatar, setCroppedAvatar] = useState<File | null | Blob>(null);
   const [croppedAvatarURL, setCroppedAvatarURL] = useState<string | null>(null);
   const [newUser, setNewUser] = useState<User | null>(user);
+  const [exitDiv, setExitDiv] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     if (location.state?.croppedAvatar) {
       setCroppedAvatar(location.state.croppedAvatar);
       const url = URL.createObjectURL(location.state.croppedAvatar);
       setCroppedAvatarURL(url);
-      if (location.state?.originalAvatar) {
-        setOriginalAvatar(location.state.originalAvatar);
-      }
     }
+    if (location.state?.originalAvatar) {
+      setOriginalAvatar(location.state.originalAvatar);
+    }
+
     window.history.replaceState({}, document.title);
   }, [location.state]);
   useEffect(() => {
@@ -42,102 +45,166 @@ export default function Settings() {
       headers: { Authorization: `Bearer ${accessToken}` },
       body: formData,
     });
-    checkAuth();
+    await checkAuth();
   }
   return (
-    <div className="main-wrapper-settings">
-      <section className="profile-block">
-        <div className="user-avatar">
-          <div
-            className="avatar-image"
-            onClick={() =>
-              navigate("/editAvatar", {
-                state: { originalAvatar: originalAvatar },
-              })
-            }
-          >
-            <img
-              src={croppedAvatarURL || originalAvatarURL || user?.avatar || ""}
-              alt="Ава"
-            ></img>
-          </div>
-          <div className="avatar-buttons">
-            <input
-              id="input-avatar"
-              className="input-avatar"
-              type="file"
-              onChange={(e) => {
-                setCroppedAvatarURL(null);
-                setOriginalAvatar(e.target.files ? e.target.files[0] : null);
-              }}
-            />
-            <label htmlFor="input-avatar" className="btn-choose-avatar">
-              Вибрати аву
-            </label>
-            <button
-              className="btn-save-avatar"
-              onClick={() => handleChangeAvatar()}
+    <>
+      <div className="main-wrapper-settings">
+        <section className="profile-block">
+          <div className="user-avatar">
+            <div
+              className="avatar-image"
+              onClick={() =>
+                navigate("/editAvatar", {
+                  state: { originalAvatar: originalAvatar },
+                })
+              }
             >
-              Зберегти
+              <img
+                src={
+                  croppedAvatarURL || originalAvatarURL || user?.avatar || ""
+                }
+                alt="Ава"
+              ></img>
+            </div>
+            <div className="avatar-buttons">
+              <input
+                id="input-avatar"
+                className="input-avatar"
+                type="file"
+                onChange={(e) => {
+                  setCroppedAvatarURL(null);
+                  setOriginalAvatar(e.target.files ? e.target.files[0] : null);
+                }}
+              />
+              <label htmlFor="input-avatar" className="btn-choose-avatar">
+                Вибрати аву
+              </label>
+              <div className="save-avatar">
+                <button
+                  className="btn-save-avatar"
+                  onClick={() => {
+                    handleChangeAvatar();
+                    setAvaIsSаved(true);
+                  }}
+                >
+                  Зберегти
+                  {avatarIsSaved && <p>Аву збережено</p>}
+                </button>
+              </div>
+            </div>
+          </div>
+          <form className="user-info">
+            <div className="users-info-divs">
+              <label>Нікнейм</label>
+              <input
+                type="text"
+                defaultValue={user?.username}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    username: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="users-info-divs">
+              <label>Опис</label>
+              <textarea
+                maxLength={140}
+                className="input-description"
+                defaultValue={user?.bio === null ? "" : user?.bio}
+                placeholder="Розкажи про себе"
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({ ...prev, bio: e.target.value }))
+                }
+              />
+            </div>
+            <div className="users-info-divs">
+              <label>Пошта</label>
+              <input
+                type="email"
+                defaultValue={user?.email === null ? "" : user?.email}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="isPrivateDiv">
+              <label>Приватний</label>
+              <input
+                type="checkbox"
+                defaultChecked={user?.isPrivate}
+                onChange={(e) =>
+                  setNewUser((prev: any) => ({
+                    ...prev,
+                    isPrivate: e.target.checked,
+                  }))
+                }
+              />
+            </div>
+            <button
+              className="btn-save-changes"
+              onClick={(e) => {
+                e.preventDefault();
+                handleUpdateProfile();
+              }}
+            >
+              Зберегти зміни
             </button>
-          </div>
-        </div>
-        <form className="user-info">
-          <div className = "users-info-divs">
-          <label>Нікнейм</label>
-          <input
-            type="text"
-            defaultValue={user?.username}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, username: e.target.value }))
-            }
-          />
-          </div>
-          <div className="users-info-divs">
-          <label>Опис</label>
-          <textarea
-            className="input-description"
-            defaultValue={user?.bio === null ? "" : user?.bio}
-            placeholder="Розкажи про себе"
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, bio: e.target.value }))
-            }
-          />
-          </div>
-          <div className="users-info-divs">
-          <label>Пошта</label>
-          <input
-            type="email"
-            defaultValue={user?.email === null ? "" : user?.email}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({ ...prev, email: e.target.value }))
-            }
-          />
-          </div>
-          <div className = "isPrivateDiv">
-          <label>Приватний</label>
-          <input
-            type="checkbox"
-            defaultChecked={user?.isPrivate}
-            onChange={(e) =>
-              setNewUser((prev: any) => ({
-                ...prev,
-                isPrivate: e.target.checked,
-              }))
-            }
-          />
-          </div>
+          </form>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleUpdateProfile();
+            className="btn-leave-acc"
+            onClick={() => {
+              setExitDiv(true);
             }}
           >
-            Зберегти зміни
+            Вийти з акаунту
           </button>
-        </form>
-      </section>
-    </div>
+        </section>
+      </div>
+      {exitDiv && (
+        <div className="exit-overlay">
+          <div
+            tabIndex={0}
+            className="exit-container"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setExitDiv(false);
+              }
+            }}
+          >
+            Ви впевнені?
+            <div className="exit-buttons">
+              <button
+                onClick={() => {
+                  setExitDiv(false);
+                }}
+              >
+                Ні
+              </button>
+              <button
+                onClick={async () => {
+                  await fetch("/api/auth/logout", {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({
+                      deviceId: localStorage.getItem("deviceId"),
+                    }),
+                  });
+                  await checkAuth();
+                }}
+              >
+                Так
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 
   async function handleUpdateProfile() {
@@ -158,7 +225,6 @@ export default function Settings() {
       },
       body: JSON.stringify(newUserWithoutOthers),
     });
-    const data = await res.json();
-    console.log(data);
+    await checkAuth()
   }
 }

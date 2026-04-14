@@ -3,12 +3,18 @@ import { LoginPage, RegistrPage, HomePage, ProfilePage } from "./pages";
 import { useAuth } from "./context/AuthContext";
 import SettingsPage from "./pages/settingsPage";
 import CropContainer from "./components/CropCotainer/CropContainer";
+import Loader from "./components/Loading/Loader";
 
 function RequireAuth() {
   const { user, loading } = useAuth();
-  
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Loader />
+        <Outlet />
+      </>
+    );
   }
   if (!user) {
     return <Navigate to="/login" />;
@@ -24,11 +30,10 @@ export default function App() {
 
       {/* protected routes */}
       <Route element={<RequireAuth />}>
-        <Route path="/" element={<HomePage/>} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path = "/settings" element = {<SettingsPage />} />
-        <Route path = "/editAvatar" element = {<CropContainer />} />
-
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/editAvatar" element={<CropContainer />} />
       </Route>
     </Routes>
   );

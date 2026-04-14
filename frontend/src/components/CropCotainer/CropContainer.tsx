@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function CropContainer() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {user} = useAuth()
+  const { user } = useAuth();
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(false);
   const [scale, setScale] = useState(1);
@@ -12,7 +12,7 @@ export default function CropContainer() {
   const imageRef = useRef(null);
   const [originalAvatarURL, setOriginalAvatarURL] = useState("");
   useEffect(() => {
-    if(!location.state?.originalAvatar) return
+    if (!location.state?.originalAvatar) return;
     const url = URL.createObjectURL(location.state.originalAvatar);
     setOriginalAvatarURL(url);
   }, [location.state?.originalAvatar]);
@@ -100,16 +100,25 @@ export default function CropContainer() {
         }}
       >
         <img
-          src={ originalAvatarURL || user?.avatar }
+          src={originalAvatarURL || user?.avatar}
           style={avatarImgStyle}
           draggable={false}
           ref={imageRef}
         ></img>
         <div className="crop-circle"></div>
       </div>
-      <button className="save-button" onClick={onSave}>
-        Готово
-      </button>
+      <div className="crop-buttons">
+        <button className="save-button" onClick={onSave}>
+          Готово
+        </button>
+        <button onClick = {() => {
+          navigate("/settings", {
+        state: {
+          originalAvatar: location.state.originalAvatar,
+        },
+      });
+        }}>Назад</button>
+      </div>
     </div>
   );
 }
