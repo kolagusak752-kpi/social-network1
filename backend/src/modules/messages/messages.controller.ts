@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { MessageService } from './messages.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateConverstaionDto } from './dto/createConverstaionDto';
@@ -10,9 +18,8 @@ export class MessagesController {
     private readonly messageService: MessageService,
     private readonly prismaService: PrismaService,
   ) {}
-
-  @Get('getConversationList')
   @UseGuards(AuthGuard('jwt'))
+  @Get('getConversationList')
   getConversationList(@Req() req: any) {
     const userId = req.user.id;
     return this.prismaService.conversation.findMany({
@@ -27,13 +34,17 @@ export class MessagesController {
       },
     });
   }
-
-  @Post('createConversation')
   @UseGuards(AuthGuard('jwt'))
+  @Post('createConversation')
   createConversation(@Req() req: any, @Body() dto: CreateConverstaionDto) {
     console.log(req.user);
     const userId = req.user.id;
 
     return this.messageService.createConversation(userId, dto);
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':conversationId/history')
+  getMessages(@Param("conversationId") conversationId: string, @Req() req: any) {
+    return this.messageService.getMessages(conversationId, req.user.id);
   }
 }

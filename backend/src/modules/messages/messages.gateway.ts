@@ -39,23 +39,23 @@ export class MessagesGateway implements OnGatewayConnection {
   @SubscribeMessage('message:send')
   async sendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() message: string,
+    @MessageBody() data: {message: string, conversationId:string}
   ) {
     try {
       const savedMessage = await this.messageService.create({
-        message,
+        message:data.message,
         senderId: client.data.userId,
-        conversationId: client.data.conversationId,
+        conversationId: data.conversationId,
       });
 
       const participants = await this.messageService.getParticipants(
-        client.data.conversationId,
+        data.conversationId,
       );
 
       for (const participant of participants) {
         this.server
           .to(`user:${participant.userId}`)
-          .emit('message:new', savedMessage);
+          .emit('message:new', {savedMessage});
       }
     } catch (error: any) {
       throw new Error(error);

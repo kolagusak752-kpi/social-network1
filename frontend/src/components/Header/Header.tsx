@@ -1,4 +1,4 @@
-import { Settings, User } from "lucide-react"
+import { Settings, User, MessageCircle} from "lucide-react"
 import { Link, NavLink } from "react-router-dom"
 export default function Header() {
   return(
@@ -10,7 +10,7 @@ export default function Header() {
 
         <Link to = "/settings" className="link"> <Settings className="nav-btn" />
         </Link>
-        <NavLink to="/messenger">messenger</NavLink>
+        <NavLink to="/messenger"><MessageCircle className = "nav-btn" /></NavLink>
       
       </div>
     </div>

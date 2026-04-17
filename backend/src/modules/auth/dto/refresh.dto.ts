@@ -4,5 +4,5 @@ export class RefreshDto {
   @IsString()
   refreshToken: string;
   @IsString()
-  deviceId
+  deviceId: string;
 }

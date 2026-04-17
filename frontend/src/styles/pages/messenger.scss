@@ -1,17 +1,70 @@
 @use '../variables/root' as v;
 .messenger {
+  display: flex;
+  flex-direction: row;
   background-color: v.$main-bg;
-  height: 100vh;
+  height: calc(100vh - 60px);
   width: 100%;
+  overflow: hidden;
   .chat-list {
-    padding: 36px;
+    overflow-y: auto;
+    width:300px;
+    flex-shrink: 0;
+    height:100%;
+    padding: 17px;
   }
   .chat-item {
-    font-size: 2.5rem;
+    font-size: 15px;
     border: 0;
     background-color: v.$main-bg;
     outline: none;
     text-decoration: none;
     cursor: pointer;
   }
+}
+.active-chat{
+  overflow:hidden;
+  flex: 1; 
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+  .messages{
+    overflow-y: auto;
+  }
+}
+.inputMessage{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left:200px;
+  margin-bottom: 30px;
+  margin-top: auto;
+  gap:5px;
+  textarea{ 
+    background-color: v.$main-header;
+    color:black;
+    outline: none;
+    scrollbar-width: none;
+    resize: none;
+    border-radius: 8px;
+    width:500px;
+    min-height:25px
+  }
+  .send-btn{
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    height:40px;
+    width:40px;
+    background-color: v.$main-header;
+    transition: 0.3s ease;
+    &:hover{
+    background-color: #3f5c84;
+  }
+    &:active{
+      transform: scale(0.95)
+    }
+  }
+
 }

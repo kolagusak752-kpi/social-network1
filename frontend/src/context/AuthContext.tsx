@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       const refreshData = await refreshRes.json();
       const newAccessToken = refreshData.accessToken;
+      console.log(newAccessToken)
       setAccessToken(newAccessToken);
 
       const userRes = await fetch("/api/users/profile", {
