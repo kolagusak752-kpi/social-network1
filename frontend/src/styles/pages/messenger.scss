@@ -1,4 +1,4 @@
-@use '../variables/root' as v;
+@use "../variables/root" as v;
 .messenger {
   display: flex;
   flex-direction: row;
@@ -7,64 +7,154 @@
   width: 100%;
   overflow: hidden;
   .chat-list {
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
-    width:300px;
+    width: 300px;
     flex-shrink: 0;
-    height:100%;
+    height: 100%;
     padding: 17px;
   }
   .chat-item {
-    font-size: 15px;
+    font-size: 1.5rem;
     border: 0;
     background-color: v.$main-bg;
     outline: none;
     text-decoration: none;
     cursor: pointer;
   }
+  .find-btn {
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    height: 40px;
+    background: v.$main-header;
+    transition: 0.4s ease;
+    cursor: pointer;
+    &:hover {
+      background: #3f5c84;
+      transform: scale(0.95);
+    }
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+  .find-active {
+    height: 40px;
+    background: v.$main-header;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+  }
+  .close-btn {
+    border: none;
+    outline: none;
+    background: none;
+    border-radius: 50%;
+
+    transition: 0.4s ease;
+    cursor: pointer;
+    &:hover {
+      transform: scale(0.9);
+    }
+  }
+  input {
+    border: none;
+    outline: none;
+    font-size: 1.3rem;
+    background: none;
+    transition: 0.4s ease;
+    cursor: pointer;
+    &:hover {
+      transform: scale(0.95);
+    }
+    &:active {
+      transform: scale(0.9);
+    }
+  }
 }
-.active-chat{
-  overflow:hidden;
-  flex: 1; 
+.active-chat {
+  overflow: hidden;
+  flex: 1;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap:10px;
-  .messages{
+  gap: 10px;
+  width: 100%;
+  .messages {
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
 }
-.inputMessage{
+.inputMessage {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-left:200px;
+  // margin-left: 30%;
+  justify-content: center;
+  // transform: translate(-50%);
+  // margin-left: 200px;
   margin-bottom: 30px;
   margin-top: auto;
-  gap:5px;
-  textarea{ 
-    background-color: v.$main-header;
-    color:black;
+  gap: 5px;
+  textarea {
+    background: #131e20;
+    color:  white;
     outline: none;
     scrollbar-width: none;
     resize: none;
     border-radius: 8px;
-    width:500px;
-    min-height:25px
+    width: 40%;
+    min-height: 40px;
+    padding: 8px;
   }
-  .send-btn{
+  .send-btn {
     border: none;
     outline: none;
     border-radius: 50%;
-    height:40px;
-    width:40px;
-    background-color: v.$main-header;
+    height: 40px;
+    width: 40px;
+    background: #131e20;
     transition: 0.3s ease;
-    &:hover{
-    background-color: #3f5c84;
-  }
-    &:active{
-      transform: scale(0.95)
+    cursor: pointer;
+    &:hover {
+      background-color: #3f5c84;
+    }
+    &:active {
+      transform: scale(0.95);
     }
   }
-
+}
+.messages {
+  padding: 40px 80px;
+}
+.myMessage {
+  background-color: #3f5c84;
+  color: white;
+  border-radius: 5px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 80%;
+  width: auto;
+   align-self: flex-end;
+   margin: 4px 0;
+}
+.oneMessage {
+  background-color: #5b5b5b;
+  color: white;
+  border-radius: 5px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+  width: auto;
+  align-self: flex-start;
+  margin: 4px 0;
 }

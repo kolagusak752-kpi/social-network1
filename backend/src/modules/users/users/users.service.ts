@@ -22,7 +22,6 @@ export class UsersService {
     });
   }
 
-
   //TODO: Сделать метод который будет выводить не занят ли username другим пользователем + тут выводить ошибку из неста(особенную)
   async update(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -52,5 +51,33 @@ export class UsersService {
 
   async getAllUsers() {
     return this.prisma.user.findMany();
+  }
+
+  async findUser(query: string, userId: string) {
+    try {
+      if (!query || query.length < 2) return [];
+      const userData = await this.prisma.user.findMany({
+        where: {
+          OR: [
+            { username: { contains: query, mode: 'insensitive' } },
+            { email: { contains: query, mode: 'insensitive' } },
+          ],
+        },
+      });
+      if (!userData || userData.length === 0) {
+        throw new NotFoundException('Користувача не знайдено');
+      }
+      const users = userData.map((user) => {
+          const { passwordHash, ...userWithoutPassword } = user;
+          return userWithoutPassword;
+
+      }).filter((user) => user.id !== userId);
+
+      return users;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Користувачів не знайдено');
+      }
+    }
   }
 }

@@ -37,4 +37,26 @@ export class MessageService {
     if(!conversation) throw new Error("У тебе немає доступу до цього чату")
     return this.prismaService.message.findMany({ where: { conversationId },include:{sender:true}});
   }
+
+  async findOrCreateConversation(userId, myUserId) {
+    const userIds = [userId, myUserId];
+    const conversation = await this.prismaService.conversation.findFirst({                                                                                                
+    where: {
+      AND: [                                                                                                                                                     
+        { participants: { some: { userId: myUserId } } },
+        { participants: { some: { userId: userId } } },
+      ],
+      participants: { every: { userId: { in: [myUserId, userId] } } },
+    },
+    include: {  messages: true },
+  });
+    if (conversation) return conversation;
+   return this.prismaService.conversation.create({
+      data: {
+        participants: {
+          createMany: { data: userIds.map((id) => ({ userId: id })) },
+        },
+      },
+    });
+  }
 }
