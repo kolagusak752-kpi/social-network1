@@ -39,11 +39,12 @@ export class MessagesGateway implements OnGatewayConnection {
   @SubscribeMessage('message:send')
   async sendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: {message: string, conversationId:string}
+    @MessageBody()
+    data: { message: string; conversationId: string; tempId: string },
   ) {
     try {
       const savedMessage = await this.messageService.create({
-        message:data.message,
+        message: data.message,
         senderId: client.data.userId,
         conversationId: data.conversationId,
       });
@@ -53,12 +54,14 @@ export class MessagesGateway implements OnGatewayConnection {
       );
 
       for (const participant of participants) {
+        if (participant.userId === client.data.userId) continue;
         this.server
           .to(`user:${participant.userId}`)
-          .emit('message:new', {savedMessage});
+          .emit('message:new', { savedMessage });
       }
-    } catch (error: any) {
-      throw new Error(error);
+      return { ok: true, tempId: data.tempId, message: savedMessage };
+    } catch (e) {
+      return { ok: false, tempId: data.tempId, error: 'send_failed' };
     }
   }
 }

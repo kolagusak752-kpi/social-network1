@@ -47,4 +47,10 @@ export class MessagesController {
   getMessages(@Param("conversationId") conversationId: string, @Req() req: any) {
     return this.messageService.getMessages(conversationId, req.user.id);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('findOrCreateConversation/:userId')
+  findOrCreateConversation(@Param('userId') userId: string, @Req() req: any) {
+    return this.messageService.findOrCreateConversation(userId, req.user.id);
+  }
 }

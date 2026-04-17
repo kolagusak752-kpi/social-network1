@@ -1,4 +1,4 @@
-import { Controller, Req, Post, Patch, Get, UseGuards, UseFilters, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
+import { Controller, Req, Post, Patch, Get, UseGuards, UseFilters, UseInterceptors, UploadedFile, Body, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -46,5 +46,11 @@ export class UsersController {
   @Post("getProfileById")
   async getProfileById(@Body() dto: {id: string}) {
     return this.userService.findUserById(dto.id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get("findByUsername")
+  async findUserByUsername(@Query() dto: {username: string}, @Req() req: any) {
+    return this.userService.findUser(dto.username, req.user.id);
   }
 }
