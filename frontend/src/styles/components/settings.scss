@@ -21,8 +21,8 @@
     overflow: hidden;
     width:170px;
     height:170px;
+    outline:1px solid azure;
     border-radius: 50%;
-    outline: 2px solid rgb(17, 3, 68);
 }
 .avatar-buttons {
     margin:30px;
@@ -35,7 +35,7 @@
     outline: 1px solid azure;
     width:100px;
     color:white;
-    background-color: rgb(4, 4, 58);
+    background-color: v.$main-bg;
     text-align: center;
     font-size:14px;
     font-family: "Inter", "Roboto", "Arial", sans-serif;
@@ -46,6 +46,7 @@
     transition: 0.3s ease;
     &:hover{
         box-shadow:0 1px 5px rgb(4, 4, 58);
+        transform: translate(0px,-2px);
     }
     &:active {
         transform: scale(0.95); 
@@ -61,7 +62,7 @@
     padding: 2px 5px;
     user-select: none;
     cursor: pointer; 
-    background-color: rgb(4, 4, 58);
+    background-color: v.$main-bg;
     outline: 1px solid azure;
     color:white;
     border-radius:5px;
@@ -75,7 +76,7 @@
         filter: brightness(0.9); 
     }
     &:hover{
-        transform: translate(0px,-5px);
+        transform: translate(0px,-2px);
     }
 
 }
@@ -87,7 +88,7 @@
     padding: 2px 5px;
     user-select: none;
     cursor: pointer; 
-    background-color: rgb(4, 4, 58);
+    background-color: v.$main-bg;
     color:white;
     border-radius:5px;
     border:none;
@@ -129,7 +130,7 @@
     flex-direction: column;
     gap: 20px;
     button:hover {
-    transform:translate(0px,-5px);
+    transform:translate(0px,-2px);
     box-shadow:0 1px 5px rgb(4, 4, 58); 
 }
 }
@@ -178,8 +179,8 @@
     display: flex;
     flex-direction: column;
     gap:70px;
-    width:180px;
-    height:100px;
+    width:220px;
+    height:120px;
     position:absolute;
     background-color: rgb(7, 7, 23);
     left: 50%;
@@ -195,11 +196,13 @@
     display: flex;
     justify-content: center;
     flex-direction: row;
-    gap: 50px;
+    gap: 70px;
   button{
+    background-color: v.$main-bg;
     cursor: pointer;
-    width:40px;
-    height:20px;
+    outline:none;
+    width:50px;
+    height:25px;
     transition: 0.3s ease;
     &:hover {
         transform: scale(1.1);
