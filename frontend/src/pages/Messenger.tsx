@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { socket } from "../App";
-import { SendHorizonal, X } from "lucide-react";
+import { AlertCircle, Check, Clock, SendHorizonal, X } from "lucide-react";
 import Loader from "../components/Loading/Loader";
 import UseDebounce from "../hooks/UseDebounce";
+
+function MessageStatus({ status }: { status?: string }) {
+  const s = status ?? "sent";
+  if (s === "sending") return <Clock size={12} color="#999" />;
+  if (s === "failed") return <AlertCircle size={12} color="#e53935" />;
+  return <Check size={12} color="#4fc3f7" />;
+}
 
 export default function Messenger() {
   const { user, accessToken, loading } = useAuth();
@@ -19,11 +26,21 @@ export default function Messenger() {
   const [findActive, setFindActive] = useState(false);
   const [findResult, setFindResult] = useState([]);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [inputText]);
+
   useEffect(() => {
     function handleMessage(data: any) {
-      if (data.savedMessage.conversationId === activeConversation) {
-        setActiveMessages((prev: any) => [...prev, data.savedMessage]);
-      }
+      if (data.savedMessage.conversationId !== activeConversation) return;
+      setActiveMessages((prev: any) => {
+        if (prev.some((m: any) => m.id === data.savedMessage.id)) return prev;
+        return [...prev, data.savedMessage];
+      });
     }
     socket.on("message:new", handleMessage);
     return () => {
@@ -158,18 +175,28 @@ export default function Messenger() {
         <div className="active-chat">
           <div className="messages">
             {activeMessages.map((message: any) => {
-              return <div className={message.senderId === user?.id ? "myMessage" : "oneMessage"}>{message.message}</div>;
+              const isMine = message.senderId === user?.id;
+              return (
+                <div
+                  key={message.tempId ?? message.id}
+                  className={isMine ? "myMessage" : "oneMessage"}
+                >
+                  <span>{message.message}</span>
+                  {isMine && <MessageStatus status={message.status} />}
+                </div>
+              );
             })}
           </div>
           <div className="inputMessage">
             <textarea
               id="inputTextarea"
+              ref={textareaRef}
               rows={1}
               placeholder="Напишіть щось..."
               onChange={(e) => setInputText(e.target.value)}
               value={inputText}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSentMessage();
                 }
@@ -203,7 +230,7 @@ export default function Messenger() {
     ]);
     setInputText("");
 
-    socket.timeout(5000).emit(
+    socket.timeout(15000).emit(
       "message:send",
       {
         message: text,
