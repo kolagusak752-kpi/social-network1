@@ -54,9 +54,9 @@ export class MessagesGateway implements OnGatewayConnection {
       );
 
       for (const participant of participants) {
-        if (participant.userId === client.data.userId) continue;
         this.server
           .to(`user:${participant.userId}`)
+          .except(client.id)
           .emit('message:new', { savedMessage });
       }
       return { ok: true, tempId: data.tempId, message: savedMessage };

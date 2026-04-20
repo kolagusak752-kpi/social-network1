@@ -68,7 +68,7 @@ export class UsersService {
         throw new NotFoundException('Користувача не знайдено');
       }
       const users = userData.map((user) => {
-          const { passwordHash, ...userWithoutPassword } = user;
+          const { passwordHash, email, createdAt, isVerified, isPrivate, updatedAt, ...userWithoutPassword } = user;
           return userWithoutPassword;
 
       }).filter((user) => user.id !== userId);

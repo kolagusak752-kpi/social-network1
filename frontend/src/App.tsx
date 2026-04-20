@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { LoginPage, RegistrPage, HomePage, ProfilePage } from "./pages";
 import { useAuth } from "./context/AuthContext";
@@ -29,6 +29,14 @@ function RequireAuth() {
   return <Outlet />;
 }
 
+function CheckPathname() {
+  const location = useLocation();
+  const { user } = useAuth();
+  if (user) {
+    return <Navigate to="/" />;
+  }
+}
+
 export default function App() {
   const { accessToken, user } = useAuth();
   useEffect(() => {
@@ -45,10 +53,11 @@ export default function App() {
   }, [user, accessToken]);
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/registration" element={<RegistrPage />} />
+      <Route element={<CheckPathname />} >
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/registration" element={<RegistrPage />} />
+      </Route>
 
-      {/* protected routes */}
       <Route element={<RequireAuth />}>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<HomePage />} />
