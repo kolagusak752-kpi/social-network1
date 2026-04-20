@@ -30,7 +30,6 @@ function RequireAuth() {
 }
 
 function CheckPathname() {
-  const location = useLocation();
   const { user } = useAuth();
   if (user) {
     return <Navigate to="/" />;
@@ -61,7 +60,7 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/editAvatar" element={<CropContainer />} />
           <Route path="/messenger" element={<Messenger />} />

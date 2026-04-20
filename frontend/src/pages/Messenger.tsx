@@ -1,9 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { socket } from "../App";
 import { AlertCircle, Check, Clock, SendHorizonal, X } from "lucide-react";
 import Loader from "../components/Loading/Loader";
 import UseDebounce from "../hooks/UseDebounce";
+import type { Conversation, Participant } from "../types/interfaces";
 
 function MessageStatus({ status }: { status?: string }) {
   const s = status ?? "sent";
@@ -11,13 +13,13 @@ function MessageStatus({ status }: { status?: string }) {
   if (s === "failed") return <AlertCircle size={12} color="#e53935" />;
   return <Check size={12} color="#4fc3f7" />;
 }
-
 export default function Messenger() {
   const { user, accessToken, loading } = useAuth();
   console.log("accessToken", accessToken);
 
   const [conversations, setConversations] = useState([]);
-  const [activeConversation, setActiveConversation] = useState(null);
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  const [activeUsers, setActiveUsers] = useState<Participant[] | []>([])
   const [activeMessages, setActiveMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState<string>("");
 
@@ -113,14 +115,15 @@ export default function Messenger() {
     findUser();
   }, [findText]);
 
-  return (
+  return ( <>
+     {loading && <Loader />}
     <div className="messenger">
-      {loading && <Loader />}
       <div className="chat-list">
         {!findActive && (
           <button
             className="find-btn"
-            onClick={() => setFindActive(!findActive)}
+            onClick={() => setFindActive(!findActive)
+            }
           >
             Знайти користувача
           </button>
@@ -131,9 +134,14 @@ export default function Messenger() {
             <button
               className="chat-item"
               key={conversation.id}
-              onClick={() => setActiveConversation(conversation.id)}
+              onClick={() => {
+                console.log(conversation)
+                setActiveConversation(conversation.id)
+                setActiveUsers(conversation.participants)
+              }}
             >
-              <div className="participants-name" key={conversation.id}>
+              <div className="participants-info" key={conversation.id}>
+                <img src = {conversation.participants[0].user.avatar} className = "avatar"></img>
                 {conversation.participants[0].user.username}
               </div>
             </button>
@@ -173,6 +181,12 @@ export default function Messenger() {
       </div>
       {activeConversation && (
         <div className="active-chat">
+          <div className = "active-user">
+            <Link to = {`/profile/${activeUsers[0].user.id}`} className = "user-profile-link">
+            <img src = {activeUsers[0].user.avatar} className = "avatar"></img>
+            {activeUsers[0].user.username}
+            </Link>
+          </div>
           <div className="messages">
             {activeMessages.map((message: any) => {
               const isMine = message.senderId === user?.id;
@@ -209,7 +223,7 @@ export default function Messenger() {
         </div>
       )}
     </div>
-  );
+  </>);
 
   async function handleSentMessage() {
     if (!inputText.trim()) return;
