@@ -27,8 +27,8 @@ export default function Messenger() {
   const findText = UseDebounce(findInput, 500);
   const [findActive, setFindActive] = useState(false);
   const [findResult, setFindResult] = useState([]);
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
   useLayoutEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -49,6 +49,7 @@ export default function Messenger() {
       socket.off("message:new", handleMessage);
     };
   }, [activeConversation]);
+
   useEffect(() => {
     if (!activeConversation) return;
     async function getMessages() {
@@ -57,7 +58,7 @@ export default function Messenger() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            "Authorization": `Bearer ${accessToken}`,
           },
         });
         const data = await res.json();
@@ -69,6 +70,7 @@ export default function Messenger() {
     }
     getMessages();
   }, [activeConversation]);
+
   useEffect(() => {
     async function getConversations() {
       try {
@@ -101,7 +103,7 @@ export default function Messenger() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
+              "Authorization": `Bearer ${accessToken}`,
             },
           },
         );
@@ -117,7 +119,7 @@ export default function Messenger() {
 
   return ( <>
      {loading && <Loader />}
-    <div className="messenger">
+    <div className="main-wrapper-messenger">
       <div className="chat-list">
         {!findActive && (
           <button
@@ -169,8 +171,10 @@ export default function Messenger() {
               <button
                 className="chat-item"
                 key={user.id}
-                onClick={async () =>
-                  setActiveConversation(await findOrCreateConversation(user.id))
+                onClick={async () =>{
+                  const conversation = await findOrCreateConversation(user.id)
+                  setActiveConversation(conversation)
+                }
                 }
               >
                 <div className="participants-name">{user.username}</div>
@@ -280,9 +284,11 @@ export default function Messenger() {
         },
       );
       const data = await res.json();
-
+      console.log(data)
       if (!res.ok) throw new Error(data.message);
+
       setActiveMessages(data.messages || []);
+      setActiveUsers(data.participants)
       return data.id;
     } catch (error) {
       console.log(error);

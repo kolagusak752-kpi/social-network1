@@ -59,7 +59,7 @@ export default function RegistrForm() {
 
           <div className="auth-field">
             <label className="auth-label" htmlFor="login">
-              Email (Логин)
+              Email (Логiн)
             </label>
             <input
               id="login"
@@ -72,13 +72,14 @@ export default function RegistrForm() {
           </div>
           <div className="auth-field">
             <label className="auth-label" htmlFor="username">
-              Имя пользователя
+              Ім'я користувача
             </label>
             <input
               id="username"
               className="auth-input"
               type="text"
               placeholder="Придумайте никнейм"
+              maxLength={10}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
@@ -100,7 +101,7 @@ export default function RegistrForm() {
 
           <div className="auth-field">
             <label className="auth-label" htmlFor="confirmPassword">
-              Подтвердите пароль
+              Підтвердіть пароль
             </label>
             <input
               id="confirmPassword"
@@ -113,7 +114,7 @@ export default function RegistrForm() {
           </div>
            {error.isError && <p className="error">{error.message}</p>}
           <button type="submit" className="auth-button">
-            Зарегистрироваться
+            Зареєструватися
           </button>
         </form>
       </div>

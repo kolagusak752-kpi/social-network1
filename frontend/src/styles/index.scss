@@ -1,10 +1,9 @@
-@use './pages/loginPage';
-@use './pages/homePage.scss';
+@use './pages/AuthPage';
+@use './pages/HomePage.scss';
 @use './components/header.scss';
 @use './components/post.scss';
-@use './pages/profilePage.scss';
-@use './pages/settingsPage.scss';
-@use './components/settings.scss';
+@use './pages/ProfilePage.scss';
+@use './pages/SettingsPage.scss';
 @use './components/cropContainer.scss';
 @use './components/loader.scss';
 @use './pages/messenger.scss';
@@ -17,6 +16,7 @@ html, body {
   width: 100%;
 }
 * {
+  font-size:16px;
   color: white;
   font-family: "DM Sans", sans-serif;
 }

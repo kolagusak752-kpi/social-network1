@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(newAccessToken)
       setAccessToken(newAccessToken);
 
-      const userRes = await fetch("/api/users/profile", {
+      const userRes = await fetch("/api/users/Me", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

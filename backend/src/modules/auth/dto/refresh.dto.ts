@@ -2,7 +2,7 @@ import { IsString } from 'class-validator';
 
 export class RefreshDto {
   @IsString()
-  refreshToken: string;
+  refreshToken!: string;
   @IsString()
-  deviceId: string;
+  deviceId!: string;
 }

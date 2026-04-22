@@ -15,7 +15,7 @@ import { OnGatewayConnection } from '@nestjs/websockets';
   cors: { origin: ['http://localhost:3000'], credentials: true },
 })
 export class MessagesGateway implements OnGatewayConnection {
-  @WebSocketServer() server: Server;
+  @WebSocketServer() server!: Server;
 
   constructor(
     private readonly jwt: JwtService,

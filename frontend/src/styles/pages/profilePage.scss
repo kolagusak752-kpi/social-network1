@@ -1,0 +1,36 @@
+@use '../variables/root' as v;
+
+.main-wrapper-profile {
+    padding: 50px 0 0 50px;
+    width: 100%;
+    height: calc(100vh - 60px);
+    box-sizing: border-box;
+    background-color: v.$main-bg;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+
+    .user-info {
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        gap: 20px;
+
+        .bio {
+            overflow: hidden;
+            font-size:16px;
+            color: azure;
+            font-style: inherit;
+            word-break: break-all;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            width: 230px;
+            height: 90px;
+        }
+    }
+}

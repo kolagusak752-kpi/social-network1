@@ -1,10 +1,12 @@
 import { Settings, User, MessageCircle} from "lucide-react"
 import { Link, NavLink } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
 export default function Header() {
+  const {user} = useAuth()
   return(
     <div className = "header">
       <div className = "nav-buttons">
-        <Link to = "userProfile" className = "link">
+        <Link to = {`/profile/${user?.id}`} className = "link">
           <User className = "nav-btn" />
         </Link>
 

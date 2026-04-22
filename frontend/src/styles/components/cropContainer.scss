@@ -1,7 +1,8 @@
 @use '../variables/root' as v;
-.wrapper {
+.main-wrapper-crop {
+    background-color: v.$main-bg;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 60px);
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -10,22 +11,23 @@
 }
 
 .crop-container {
+    background-color: rgb(176, 168, 168);
     margin: 20px;
     width: 1000px;
-    height: 700px;
+    height: 650px;
     position: relative;
     overflow: hidden;
     user-select: none;
     touch-action: none;
-    outline: solid 5px black;
+    outline: solid 3px rgb(81, 68, 68);
 }
 
 .crop-circle {
     position: absolute;
     top: 50%;
     left: 50%;
-    height: 200px;
-    width: 200px;
+    height: 170px;
+    width: 170px;
     border-radius: 50%;
     outline: solid 5px black;
     transform: translate(-50%, -50%);
@@ -40,8 +42,8 @@
     button {
         width: 90px;
         height: 30px;
-        color: white;
-        background-color: v.$main-bg;
+        color: black;
+        background-color: white;
         text-align: center;
         font-size: 14px;
         font-family: "Inter", "Roboto", "Arial", sans-serif;
