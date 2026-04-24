@@ -1,3 +1,3 @@
-export class CreateConverstaionDto {
-  userIds: string[];
+export class CreateConversationDto {
+  userIds!: string[];
 }

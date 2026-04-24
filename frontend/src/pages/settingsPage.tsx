@@ -19,21 +19,27 @@ export default function Settings() {
   const [exitDiv, setExitDiv] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
+    let url = ""
     if (location.state?.croppedAvatar) {
       setCroppedAvatar(location.state.croppedAvatar);
-      const url = URL.createObjectURL(location.state.croppedAvatar);
+       url = URL.createObjectURL(location.state.croppedAvatar);
       setCroppedAvatarURL(url);
     }
     if (location.state?.originalAvatar) {
       setOriginalAvatar(location.state.originalAvatar);
     }
 
+
     window.history.replaceState({}, document.title);
+    return () => URL.revokeObjectURL(url)
   }, [location.state]);
   useEffect(() => {
+    let url = ""
     if (originalAvatar) {
-      setOriginalAvatarURL(URL.createObjectURL(originalAvatar));
+      url = URL.createObjectURL(originalAvatar)
+      setOriginalAvatarURL(url);
     }
+    return () => URL.revokeObjectURL(url)
   }, [originalAvatar]);
   async function handleChangeAvatar() {
     const formData = new FormData();

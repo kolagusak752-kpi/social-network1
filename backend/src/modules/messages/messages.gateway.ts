@@ -9,8 +9,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { MessageService } from './messages.service';
+import { FilesService } from '../cdn/files.service';
 import { OnGatewayConnection } from '@nestjs/websockets';
-
 @WebSocketGateway({
   cors: { origin: ['http://localhost:3000'], credentials: true },
 })
@@ -20,6 +20,7 @@ export class MessagesGateway implements OnGatewayConnection {
   constructor(
     private readonly jwt: JwtService,
     private readonly messageService: MessageService,
+    private readonly filesService: FilesService,
   ) {}
 
   async handleConnection(client: Socket, ...args: any[]) {
@@ -40,13 +41,14 @@ export class MessagesGateway implements OnGatewayConnection {
   async sendMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { message: string; conversationId: string; tempId: string },
+    data: { message: string; attachments: string[], conversationId: string; tempId: string },
   ) {
     try {
       const savedMessage = await this.messageService.create({
         message: data.message,
         senderId: client.data.userId,
         conversationId: data.conversationId,
+        attachments: data.attachments
       });
 
       const participants = await this.messageService.getParticipants(

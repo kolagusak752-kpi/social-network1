@@ -5,18 +5,24 @@ import {
   Param,
   Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MessageService } from './messages.service';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateConverstaionDto } from './dto/createConverstaionDto';
+import { FilesService } from '../cdn/files.service';
+import { CreateConversationDto } from './dto/createConverstaionDto';
 import { AuthGuard } from '@nestjs/passport';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Controller('messages')
 export class MessagesController {
   constructor(
     private readonly messageService: MessageService,
     private readonly prismaService: PrismaService,
+    private readonly filesService: FilesService,
   ) {}
   @UseGuards(AuthGuard('jwt'))
   @Get('getConversationList')
@@ -36,7 +42,7 @@ export class MessagesController {
   }
   @UseGuards(AuthGuard('jwt'))
   @Post('createConversation')
-  createConversation(@Req() req: any, @Body() dto: CreateConverstaionDto) {
+  createConversation(@Req() req: any, @Body() dto: CreateConversationDto) {
     console.log(req.user);
     const userId = req.user.id;
 
@@ -52,5 +58,16 @@ export class MessagesController {
   @Get('findOrCreateConversation/:userId')
   findOrCreateConversation(@Param('userId') userId: string, @Req() req: any) {
     return this.messageService.findOrCreateConversation(userId, req.user.id);
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Post("uploadAttachments")
+  @UseInterceptors(FilesInterceptor('inputFiles', 10, {storage:memoryStorage()}))
+  async uploadAttachments(@UploadedFiles() files: Express.Multer.File[]) {
+    const uploadPromises = files.map((file) => {
+      return this.filesService.uploadFile(file)
+    })
+    const uploads = await Promise.all(uploadPromises)
+    const fileUrls = uploads.map((res) => res.data.url)
+    return fileUrls
   }
 }

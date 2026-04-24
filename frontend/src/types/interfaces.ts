@@ -26,3 +26,7 @@ export interface Conversation {
     id: string;
     partiipants: Participant[]
 }
+export interface ChatImage {
+  file:File;
+  url:string;
+}

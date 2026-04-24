@@ -1,12 +1,13 @@
 import { IsString } from "class-validator";
-
 export class CreateMessageDto {
   @IsString()
-  message: string;
+  message!: string;
 
   @IsString()
-  senderId: string;
+  senderId!: string;
 
   @IsString()
-  conversationId: string;
+  conversationId!: string;
+
+  attachments!: string[] 
 }

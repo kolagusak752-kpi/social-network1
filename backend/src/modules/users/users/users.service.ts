@@ -6,6 +6,7 @@ import { UpdateProfileDto } from './dto/updateProfile.dto';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
   async findUserById(userId: string) {
+    try{
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -14,7 +15,11 @@ export class UsersService {
     }
     const { passwordHash, ...UserWithoutPassword } = user;
     return UserWithoutPassword;
+  }catch(e) {
+   console.log(e)
   }
+  }
+
   async changeAvatar(avatarURL: string, userId: string) {
     await this.prisma.user.update({
       where: { id: userId },
