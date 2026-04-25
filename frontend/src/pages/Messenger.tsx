@@ -263,7 +263,18 @@ export default function Messenger() {
               {inputFiles && (
                 <div className="selected-images">
                   {inputFiles.map((file) => {
-                    return <img src={file.url}></img>;
+                    return (
+                      <div className = "one-selectedImage">
+                        <img src={file.url} alt="selected"></img>
+                        <button className="closeImage-btn"
+                          onClick={() => {
+                            setInputFiles((prev) => {
+                              return prev.filter((f) => f.url !== file.url);
+                            });
+                          }}
+                        ><X /></button>
+                      </div>
+                    );
                   })}
                 </div>
               )}
