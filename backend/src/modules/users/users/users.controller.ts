@@ -29,7 +29,7 @@ export class UsersController {
   async changeAvatar(@UploadedFile() file: Express.Multer.File, @Req() req:any) {
 
   if (!file) {
-    throw new Error('Файл потерялся по дороге!');
+    throw new Error('Файл загубився по дорозі!');
   }
     const cdnData = await this.filesService.uploadFile(file)
     await this.userService.changeAvatar(cdnData.data.url , req.user.id)

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateMessageDto } from './dto/createDto';
 import { CreateConversationDto } from './dto/createConverstaionDto';
+import { last } from 'rxjs';
 
 @Injectable()
 export class MessageService {
@@ -80,4 +81,25 @@ export class MessageService {
       },
     });
   }
+  async *getMessagesGenerator(conversationId:string, amountOfMessages) {
+    let lastMessageId: string | undefined = undefined
+    let hasMore = true
+    while(hasMore) {
+      const messages = await this.prismaService.message.findMany({where:{
+        conversationId: conversationId
+      },take:amountOfMessages,
+      skip:lastMessageId ? 1: 0,
+      cursor: lastMessageId? {id: lastMessageId}: undefined,
+      orderBy:{createdAt:"desc"}
+    })
+    if(messages.length < amountOfMessages) {
+      hasMore = false
+    }
+    if(messages.length > 0) {
+      lastMessageId = messages[messages.length - 1].id
+      yield messages.reverse()
+    }
+    }
+  }
+
 }

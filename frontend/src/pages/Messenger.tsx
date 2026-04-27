@@ -36,7 +36,50 @@ export default function Messenger() {
   const [findResult, setFindResult] = useState([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [inputFiles, setInputFiles] = useState<ChatImage[] | []>([]);
+  const isFirstLoad = useRef(false);
   const messageEnd = useRef<HTMLDivElement | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const previousScrollHeight = useRef(0);
+  const messagesContainer = useRef<HTMLDivElement>(null);
+  function handleScroll() {
+    const container = messagesContainer.current;
+    if (!container) return;
+    if (container.scrollTop <= 20 && hasMore) {
+      previousScrollHeight.current = container.scrollHeight;
+      socket
+        .timeout(5000)
+        .emit(
+          "chat:loader",
+          { conversationId: activeConversation },
+          (err: any, ack: any) => {
+            if (ack.ok) {
+              setHasMore(ack.hasMore);
+              setActiveMessages((prev) => {
+                return [...ack.messages, ...prev];
+              });
+            }
+          },
+        );
+    }
+  }
+  useLayoutEffect(() => {
+    const container = messagesContainer.current;
+    if (!container) return;
+    if (previousScrollHeight.current > 0) {
+      const newScrollHeight = container.scrollHeight;
+      const heightDifference = newScrollHeight - previousScrollHeight.current;
+      container.scrollTop = heightDifference;
+      previousScrollHeight.current = 0;
+    } else if (activeMessages.length > 0) {
+      if (isFirstLoad.current) {
+        messageEnd.current?.scrollIntoView({ behavior: "auto" });
+        isFirstLoad.current = false;
+      } else {
+        messageEnd.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [activeMessages]);
+
   function handleInputFile(event: any) {
     const file = event.target.files[0];
     if (!file) return;
@@ -55,10 +98,6 @@ export default function Messenger() {
       inputFiles?.forEach((file) => URL.revokeObjectURL(file.url));
     };
   }, [inputFiles]);
-
-  useEffect(() => {
-    messageEnd.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessages]);
 
   useLayoutEffect(() => {
     const el = textareaRef.current;
@@ -83,8 +122,26 @@ export default function Messenger() {
 
   useEffect(() => {
     if (!activeConversation) return;
-    async function getMessages() {
-      try {
+    isFirstLoad.current = true;
+    socket
+      .timeout(5000)
+      .emit(
+        "chat:join",
+        { conversationId: activeConversation },
+        (err: any, ack: any) => {
+          if (err) {
+            console.log("Помилка при загрузці повідомлень");
+            return;
+          }
+          if (ack.ok) {
+            setActiveMessages(ack.messages);
+            setHasMore(ack.hasMore);
+          }
+        },
+      );
+
+    //async function getMessages() {
+    /*try {
         const res = await fetch(`/api/messages/${activeConversation}/history`, {
           method: "GET",
           headers: {
@@ -100,7 +157,7 @@ export default function Messenger() {
         console.log(error);
       }
     }
-    getMessages();
+    getMessages();*/
   }, [activeConversation]);
 
   useEffect(() => {
@@ -230,7 +287,11 @@ export default function Messenger() {
                 {activeUsers[0].user.username}
               </Link>
             </div>
-            <div className="messages">
+            <div
+              className="messages"
+              ref={messagesContainer}
+              onScroll={handleScroll}
+            >
               {activeMessages.map((message: any) => {
                 const isMine = message.senderId === user?.id;
                 return (
@@ -264,15 +325,18 @@ export default function Messenger() {
                 <div className="selected-images">
                   {inputFiles.map((file) => {
                     return (
-                      <div className = "one-selectedImage">
+                      <div className="one-selectedImage">
                         <img src={file.url} alt="selected"></img>
-                        <button className="closeImage-btn"
+                        <button
+                          className="closeImage-btn"
                           onClick={() => {
                             setInputFiles((prev) => {
                               return prev.filter((f) => f.url !== file.url);
                             });
                           }}
-                        ><X /></button>
+                        >
+                          <X />
+                        </button>
                       </div>
                     );
                   })}
