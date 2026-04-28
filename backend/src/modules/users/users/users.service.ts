@@ -1,19 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService} from 'prisma/prisma.service';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
+import { CacheService } from './cache.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private cache: CacheService) {}
   async findUserById(userId: string) {
     try{
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+      const cachedUser = this.cache.get(userId);
+      if (cachedUser) {
+        return cachedUser;
+      }
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
     if (!user) {
       throw new NotFoundException('Пользователь с этим айди не найден');
     }
     const { passwordHash, ...UserWithoutPassword } = user;
+    this.cache.set(userId, UserWithoutPassword);
     return UserWithoutPassword;
   }catch(e) {
    console.log(e)
@@ -27,20 +33,19 @@ export class UsersService {
     });
   }
 
-  //TODO: Сделать метод который будет выводить не занят ли username другим пользователем + тут выводить ошибку из неста(особенную)
   async update(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       throw new NotFoundException('Пользователь с этим айди не найден');
     }
-
+    this.cache.delete(userId);
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: dto,
     });
-
     const { passwordHash, ...result } = updated;
+    this.cache.set(userId, result);
     return result;
   }
 
