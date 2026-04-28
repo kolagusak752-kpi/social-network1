@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {  useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { socket } from "../App";
@@ -41,6 +41,7 @@ export default function Messenger() {
   const [hasMore, setHasMore] = useState(true);
   const previousScrollHeight = useRef(0);
   const messagesContainer = useRef<HTMLDivElement>(null);
+
   function handleScroll() {
     const container = messagesContainer.current;
     if (!container) return;

@@ -14,4 +14,11 @@ export class FilesService {
         const data = await res.json()
         return data
     }
-}
+        async deleteFile(fileUrl: string) {
+            const res = await fetch(`http://localhost:8080/images/${fileUrl}`, {
+                method: "DELETE"
+            })
+            const data = await res.json()
+            return data
+        }
+    }

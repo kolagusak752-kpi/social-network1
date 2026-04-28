@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateMessageDto } from './dto/createDto';
 import { CreateConversationDto } from './dto/createConverstaionDto';
-import { last } from 'rxjs';
+
 
 @Injectable()
 export class MessageService {
@@ -90,7 +90,8 @@ export class MessageService {
       },take:amountOfMessages,
       skip:lastMessageId ? 1: 0,
       cursor: lastMessageId? {id: lastMessageId}: undefined,
-      orderBy:{createdAt:"desc"}
+      orderBy:{createdAt:"desc"},
+      include:{sender:true, attachments:true}
     })
     if(messages.length < amountOfMessages) {
       hasMore = false

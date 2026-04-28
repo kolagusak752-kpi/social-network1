@@ -7,6 +7,7 @@ import { AuthModule } from "../auth/auth.module";
 import { MessagesGateway } from "./messages.gateway";
 import { FilesService } from "../cdn/files.service";
 
+
 @Module({
     imports:[AuthModule],
     exports:[MessageService],

@@ -2,10 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService} from 'prisma/prisma.service';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { CacheService } from './cache.service';
+import { QueueService } from './queue.service';
+import { FilesService } from 'src/modules/cdn/files.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private cache: CacheService) {}
+  constructor(private prisma: PrismaService, private cache: CacheService, private queue: QueueService, private filesService: FilesService) {}
   async findUserById(userId: string) {
     try{
       const cachedUser = this.cache.get(userId);
@@ -27,9 +29,18 @@ export class UsersService {
   }
 
   async changeAvatar(avatarURL: string, userId: string) {
-    await this.prisma.user.update({
+    const oldAvatar = await this.prisma.user.findUnique({
       where: { id: userId },
-      data: { avatar: avatarURL },
+      select: { avatar: true },
+    })
+    await this.prisma.user.update({
+        where: { id: userId },
+        data: { avatar: avatarURL },
+      });
+    this.queue.add(async () => {
+      if(oldAvatar?.avatar) {
+        await this.filesService.deleteFile(oldAvatar.avatar);
+      }
     });
   }
 
