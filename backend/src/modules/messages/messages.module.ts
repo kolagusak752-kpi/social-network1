@@ -5,11 +5,13 @@ import { MessagesController } from "./messages.controller";
 import { PrismaModule } from "prisma/prisma.module";
 import { AuthModule } from "../auth/auth.module";
 import { MessagesGateway } from "./messages.gateway";
+import { FilesService } from "../cdn/files.service";
+
 
 @Module({
     imports:[AuthModule],
     exports:[MessageService],
     controllers: [MessagesController],
-    providers: [MessageService, MessagesGateway]
+    providers: [MessageService, MessagesGateway,FilesService]
 })
 export class MessagesModule{}

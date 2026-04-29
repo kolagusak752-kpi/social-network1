@@ -7,7 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 export default function LoginForm() {
   const [loginInput, setLoginInput] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("")
+  const [error, setError] = useState({ isError: false, message: "" });
 
   const { checkAuth } = useAuth();
   const navigate = useNavigate();
@@ -25,16 +25,9 @@ export default function LoginForm() {
       await checkAuth()
       navigate("/");
     } catch (error:any) {
-      setError(error.message)
+      setError({ isError: true, message: error.message });
       console.log("login error:", error);
     }
-  }
-  if(error) {
-    return(
-      <div>
-        {error}
-      </div>
-    )
   }
   return (
     <div className="auth-container">
@@ -70,6 +63,7 @@ export default function LoginForm() {
         <button type="submit" className="auth-button">
           Увійти
         </button>
+        {error.isError && <p className="error">{error.message}</p>}
         <Link className="link" to="/registration">
           Ще немає акаунту?Зареєструватися
         </Link>

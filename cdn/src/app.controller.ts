@@ -11,12 +11,13 @@ import {
   Param,
   StreamableFile,
   NotFoundException,
+  Delete,
 } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { randomUUID } from 'crypto';
 import { extname, join } from 'path';
-import { existsSync, createReadStream } from 'fs';
+import { existsSync, createReadStream, unlinkSync } from 'fs';
 
 @Controller()
 export class AppController {
@@ -44,7 +45,7 @@ export class AppController {
         if (allowedMimes.includes(file.mimetype)) {
           callback(null, true);
         } else {
-          callback(new BadRequestException('Неподдерживаемый формат'), false);
+          callback(new BadRequestException('Непідтримуваний формат файлу'), false);
         }
       },
     }),
@@ -58,7 +59,7 @@ export class AppController {
     file: Express.Multer.File,
   ) {
     if (!file) {
-      throw new BadRequestException('file not found');
+      throw new BadRequestException('зображення не було завантажено');
     }
 
     return {
@@ -82,13 +83,13 @@ export class AppController {
       filename.includes('/') ||
       filename.includes('\\')
     ) {
-      throw new BadRequestException('Недопустимое имя файла');
+      throw new BadRequestException("Недопустиме ім'я файлу");
     }
 
     const filePath = join(this.uploadPath, filename);
 
     if (!existsSync(filePath)) {
-      throw new NotFoundException('Изображение не найдено');
+      throw new NotFoundException('Зображення не знайдено');
     }
 
     const file = createReadStream(filePath);
@@ -107,5 +108,27 @@ export class AppController {
     return new StreamableFile(file, {
       type: mimeType,
     });
+  }
+  @Delete('images/:filename')
+  deleteImage(@Param('filename') filename: string) {
+    if (
+      filename.includes('..') ||
+      filename.includes('/') ||
+      filename.includes('\\')
+    ) {
+      throw new BadRequestException("Недопустиме ім'я файлу");
+    }
+
+    const filePath = join(this.uploadPath, filename);
+
+    if (!existsSync(filePath)) {
+      throw new NotFoundException('Зображення не знайдено');
+    }
+    try {
+      unlinkSync(filePath);
+      return { success: true, message: 'Зображення успішно видалено' };
+    } catch (error) {
+      throw new BadRequestException('Помилка при видаленні зображення');
+}
   }
 }

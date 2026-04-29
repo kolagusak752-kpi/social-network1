@@ -49,14 +49,14 @@ export default function CropContainer() {
     }
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    const circleSize = 200;
+    const circleSize = 170;
     canvas.width = circleSize;
     canvas.height = circleSize;
     ctx?.beginPath;
     ctx?.arc(circleSize / 2, circleSize / 2, circleSize / 2, 0, Math.PI * 2);
     ctx?.clip();
     const offsetX = 1000 / 2 - 100;
-    const offsetY = 700 / 2 - 100;
+    const offsetY = 650 / 2 - 100;
     const sx = (offsetX - position.x) / scale;
     const sy = (offsetY - position.y) / scale;
     const sSize = circleSize / scale;
@@ -88,7 +88,7 @@ export default function CropContainer() {
     transformOrigin: "0 0",
   };
   return (
-    <div className="wrapper">
+    <div className="main-wrapper-crop">
       <div
         className="crop-container"
         onMouseDown={(e) => onMouseDown(e)}

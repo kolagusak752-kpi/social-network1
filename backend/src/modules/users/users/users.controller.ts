@@ -1,4 +1,4 @@
-import { Controller, Req, Post, Patch, Get, UseGuards, UseFilters, UseInterceptors, UploadedFile, Body, Query } from '@nestjs/common';
+import { Controller, Req, Post, Patch, Get, UseGuards, UseFilters, UseInterceptors, UploadedFile, Body, Query, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -13,11 +13,15 @@ export class UsersController {
   async getAllUsers() {
     return this.userService.getAllUsers();
   }
-
   @UseGuards(AuthGuard('jwt'))
-  @Get('profile')
-  async getProfile(@Req() req: any) {
-    return this.userService.findUserById(req.user.id);
+  @Get("me")
+  async getMe(@Req() req:any) {
+    return this.userService.findUserById(req.user.id)
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile/:userId')
+  async getProfile(@Param("userId") userId:string) {
+    return this.userService.findUserById(userId);
   }
   @UseGuards(AuthGuard('jwt'))
   @Post("changeAvatar")
@@ -25,7 +29,7 @@ export class UsersController {
   async changeAvatar(@UploadedFile() file: Express.Multer.File, @Req() req:any) {
 
   if (!file) {
-    throw new Error('Файл потерялся по дороге!');
+    throw new Error('Файл загубився по дорозі!');
   }
     const cdnData = await this.filesService.uploadFile(file)
     await this.userService.changeAvatar(cdnData.data.url , req.user.id)

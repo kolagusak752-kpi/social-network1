@@ -8,22 +8,23 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique 
-  username     String   @unique
-  passwordHash String
-  avatar       String?
-  bio          String?
-  isPrivate    Boolean  @default(false)
-  isVerified   Boolean  @default(false)
+  id               String   @id @default(uuid())
+  email            String   @unique 
+  username         String   @unique
+  passwordHash     String
+  avatar           String?
+  bio              String?
+  isPrivate        Boolean  @default(false)
+  verificationCode String?
+  isVerified       Boolean  @default(false)
   
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  refreshTokens RefreshToken[]
-  posts         Post[]
-  likes         Like[]
-  comments      Comment[]
+  refreshTokens    RefreshToken[]
+  posts            Post[]
+  likes            Like[]
+  comments         Comment[]
 
   participants  Participant[]
   messages      Message[]
@@ -220,8 +221,16 @@ model Message {
   conversationId  String
   conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   message         String
-  createdAt      DateTime     @default(now())
+  attachments     Attachment[]
+  createdAt       DateTime     @default(now())
 
   @@index([conversationId, createdAt])
   @@index([senderId])
+}
+model Attachment {
+  id              String @id @default(uuid())
+  URL             String
+  messageId       String
+  type            MediaType
+  message         Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
