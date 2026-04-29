@@ -3,7 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
-  Req
+  Req,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -11,52 +11,66 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { TransportService } from './transport.service';
+import { VerificationDto } from './dto/verification.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private transportService: TransportService,
   ) {}
 
   async register(dto: RegisterDto) {
     try {
+      const oldUser = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    
-    const oldUser = await this.prisma.user.findUnique({
+      if (oldUser) {
+        throw new BadRequestException({
+          message: 'Користувач з такою поштою вже існує',
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const code = Math.floor(Math.random() * 900000 + 100000).toString();
+      await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          passwordHash: hashedPassword,
+          username: dto.username,
+          verificationCode: code,
+        },
+      });
+
+      await this.transportService.sendMail(dto.email, code);
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new BadRequestException({
+          message: 'Користувач з такою поштою або іменем вже існує',
+        });
+      }
+    }
+    return { message: 'Реєстрація прошла успішно' };
+  }
+  async verify(dto: VerificationDto) {
+    const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-
-    if (oldUser) {
-      throw new BadRequestException({
-        message: 'Пользователь с такой почтой уже зарегистрирован ',
-      });
+    if (!user) {
+      throw new NotFoundException('Користувач з такою поштою не знайдений ');
     }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash: hashedPassword,
-        username: dto.username,
-      },
+    if (user.verificationCode !== dto.code) {
+      throw new BadRequestException('Неправильний код підтвердження');
+    }
+    await this.prisma.user.update({
+      where: { email: dto.email },
+      data: { isVerified: true, verificationCode:null},
     });
-    const tokens = await this.issueTokens(user.id, dto.deviceId);
-    const { passwordHash, ...userWithoutPassword } = user;
-    return {
-      user: userWithoutPassword,
-      ...tokens,
-    };
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      throw new BadRequestException({
-        message: 'Користувач з такою поштою або іменем вже існує',
-      });
-    }
-    throw error;
+    return { message: 'Пошта підтверджена' };
   }
-}
 
   async login(dto: LoginDto) {
     const oldUser = await this.prisma.user.findUnique({
@@ -64,8 +78,11 @@ export class AuthService {
     });
     if (!oldUser) {
       throw new NotFoundException({
-        message: 'Пользователь с такой почтой не найден',
+        message: 'Користувач з такою поштою не знайдений',
       });
+    }
+    if (oldUser.isVerified === false) {
+      throw new BadRequestException('Пошта не підтверджена');
     }
     const passwordMatch = await bcrypt.compare(
       dto.password,
@@ -78,15 +95,15 @@ export class AuthService {
     }
     await this.prisma.refreshToken.deleteMany({
       where: {
-        deviceId: dto.deviceId
-      }
-    })
-    const tokens = await this.issueTokens(oldUser.id,dto.deviceId);
+        deviceId: dto.deviceId,
+      },
+    });
+    const tokens = await this.issueTokens(oldUser.id, dto.deviceId);
     const { passwordHash, ...userWithoutPassword } = oldUser;
     return { user: userWithoutPassword, ...tokens };
   }
 
-  private async issueTokens(userId: string, deviceId:string) {
+  private async issueTokens(userId: string, deviceId: string) {
     const payload = { id: userId };
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
@@ -103,12 +120,12 @@ export class AuthService {
         token: refreshToken,
         userId: userId,
         expiresAt: expiresAt,
-        deviceId:deviceId
+        deviceId: deviceId,
       },
     });
     return { accessToken, refreshToken };
   }
-  async updateTokens(refreshToken:any) {
+  async updateTokens(refreshToken: any) {
     const payload = await this.jwt
       .verifyAsync(refreshToken, {
         secret: process.env.JWT_SECRET,
@@ -126,13 +143,13 @@ export class AuthService {
         'Рефреш токен не найден или уже был использован',
       );
     }
-    const deviceId = tokenInDb.deviceId
+    const deviceId = tokenInDb.deviceId;
     await this.prisma.refreshToken.delete({
       where: { id: tokenInDb.id },
     });
     return this.issueTokens(payload.id, deviceId);
   }
-  async logout( refreshToken, deviceId) { 
+  async logout(refreshToken, deviceId) {
     const tokenInDb = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
@@ -145,7 +162,8 @@ export class AuthService {
     await this.prisma.refreshToken.deleteMany({
       where: {
         deviceId: deviceId,
-        userId: tokenInDb.userId
-      }})
+        userId: tokenInDb.userId,
+      },
+    });
   }
 }

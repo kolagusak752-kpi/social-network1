@@ -55,7 +55,8 @@ export default function App() {
     <Routes>
       <Route element={<CheckPathname />} >
         <Route path="/login" element={<AuthPage form = "login"/>} />
-        <Route path="/registration" element={<AuthPage form = "registr" />} />
+        <Route path="/registration" element={<AuthPage form = "registration" />} />
+        <Route path="/verify" element={<AuthPage form = "verify" />} />
       </Route>
 
       <Route element={<RequireAuth />}>

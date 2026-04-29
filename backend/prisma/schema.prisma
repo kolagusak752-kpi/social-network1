@@ -8,22 +8,23 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique 
-  username     String   @unique
-  passwordHash String
-  avatar       String?
-  bio          String?
-  isPrivate    Boolean  @default(false)
-  isVerified   Boolean  @default(false)
+  id               String   @id @default(uuid())
+  email            String   @unique 
+  username         String   @unique
+  passwordHash     String
+  avatar           String?
+  bio              String?
+  isPrivate        Boolean  @default(false)
+  verificationCode String?
+  isVerified       Boolean  @default(false)
   
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  refreshTokens RefreshToken[]
-  posts         Post[]
-  likes         Like[]
-  comments      Comment[]
+  refreshTokens    RefreshToken[]
+  posts            Post[]
+  likes            Like[]
+  comments         Comment[]
 
   participants  Participant[]
   messages      Message[]

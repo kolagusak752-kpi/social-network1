@@ -39,9 +39,10 @@ export default function RegistrForm() {
         throw new Error("Паролі не співпадають");
       }
       let deviceId = crypto.randomUUID();
-      await register({ email: login, username, password, deviceId });
       localStorage.setItem("deviceId", deviceId);
-      navigate("/login");
+      await register({ email: login, username, password});
+      localStorage.setItem("email", login);
+      navigate("/verify");
     } catch (error: any) {
       setError({isError: true, message: error.message});
     }
@@ -55,7 +56,7 @@ export default function RegistrForm() {
     <>
       <div className="auth-container">
         <form className="auth-form" onSubmit={handleSubmit}>
-          <h2 className="auth-title">Регистрация</h2>
+          <h2 className="auth-title">Реєстрація</h2>
 
           <div className="auth-field">
             <label className="auth-label" htmlFor="login">

@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { VerificationDto } from './dto/verification.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,26 +24,28 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-      const user = await this.authService.register(dto);
-      return user;
-  }
-  @Post('login')
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
-    const data = await this.authService.login(dto);
+      return await this.authService.register(dto);
 
-    res.cookie('refreshToken', data.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-    return data;
   }
+  @Post('verify')
+  async verify(@Body() dto: VerificationDto) {
+    return this.authService.verify(dto);
+  }
+    @Post('login')
+    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
+      const data = await this.authService.login(dto);
+      res.cookie('refreshToken', data.refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      return data;
+    }
 
   @HttpCode(200)
   @Post('refresh')
   async getNewTokens(@Req() req: any, @Res({ passthrough: true }) res: any) {
-    //eslint-disable-next-line
     const refreshToken = req.cookies.refreshToken
 
     const data = await this.authService.updateTokens(refreshToken);
