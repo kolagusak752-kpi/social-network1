@@ -89,7 +89,7 @@ export class AuthService {
     );
     if (!passwordMatch) {
       throw new UnauthorizedException({
-        message: 'Неверный пароль',
+        message: 'Неправильний пароль',
       });
     }
     await this.prisma.refreshToken.deleteMany({
