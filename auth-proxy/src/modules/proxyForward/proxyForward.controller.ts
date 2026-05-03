@@ -104,8 +104,6 @@ export class ProxyForwardController {
         method: req.method,
         headers,
         body,
-        // @ts-ignore — Node.js Readable is valid fetch body in Node 18+
-        duplex: 'half',
       } as any);
     } catch (e) {
       throw new InternalServerErrorException('Backend service is unavailable');
