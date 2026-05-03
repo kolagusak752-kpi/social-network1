@@ -35,7 +35,11 @@ export class ProxyAuthController {
     } catch {
       throw new InternalServerErrorException('Backend service is unavailable');
     }
-    const data = await response.json();
+    console.log(response);
+    
+    const text = await response.text();
+    console.log(text);
+    const data = text ? JSON.parse(text) : null;
     if (!response.ok) {
       throw new HttpException(data, response.status);
     }

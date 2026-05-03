@@ -18,10 +18,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkAuth = async () => {
     setLoading(true);
     try {
-      const userData = await usersApi.getMe();
+      const [userData, tokenData] = await Promise.all([
+        usersApi.getMe(),
+        authApi.getToken(),
+      ]);
       setUser(userData);
-      const { accessToken: token } = await authApi.getToken();
-      setAccessToken(token);
+      setAccessToken(tokenData.accessToken);
     } catch {
       setUser(null);
       setAccessToken(null);

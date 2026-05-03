@@ -39,29 +39,29 @@ function CheckPathname() {
 
 export default function App() {
   const { accessToken, user } = useAuth();
+
   useEffect(() => {
-    if (accessToken && user) {
-      socket.auth = { token: accessToken };
-      socket.connect();
-      socket.on("connect", () => {
-        console.log("socket connected");
-      });
-    }
+    if (!accessToken || !user) return;
+
+    socket.auth = { token: accessToken };
+    socket.connect();
+
     return () => {
       socket.disconnect();
     };
   }, [user, accessToken]);
+
   return (
     <Routes>
-      <Route element={<CheckPathname />} >
-        <Route path="/login" element={<AuthPage form = "login"/>} />
-        <Route path="/registration" element={<AuthPage form = "registration" />} />
-        <Route path="/verify" element={<AuthPage form = "verify" />} />
+      <Route element={<CheckPathname />}>
+        <Route path="/login" element={<AuthPage form="login" />} />
+        <Route path="/registration" element={<AuthPage form="registration" />} />
+        <Route path="/verify" element={<AuthPage form="verify" />} />
       </Route>
 
       <Route element={<RequireAuth />}>
         <Route element={<DefaultLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/messenger" replace />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/editAvatar" element={<CropContainer />} />
