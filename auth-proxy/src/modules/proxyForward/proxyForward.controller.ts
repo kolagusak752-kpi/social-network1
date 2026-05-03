@@ -15,7 +15,7 @@ export class ProxyForwardController {
   private readonly apiUrl: string;
   constructor(
     private sessionService: SessionService,
-    private AuthStrategyService: AuthStrategyService,
+    private authStrategyService: AuthStrategyService,
   ) {
     this.apiUrl = process.env.API_URL!;
   }
@@ -33,7 +33,7 @@ export class ProxyForwardController {
       throw new UnauthorizedException('Session not found or expired');
     }
 
-    const headers = this.AuthStrategyService.injectHeaders(
+    const headers = this.authStrategyService.injectHeaders(
       session.strategy as 'jwt' | 'oauth' | 'apiKey',
       session.accessToken,
     );
@@ -54,7 +54,7 @@ export class ProxyForwardController {
         res.clearCookie('sessionId');
         throw new UnauthorizedException('Session not found or expired');
       }
-      const newAuthHeaders = this.AuthStrategyService.injectHeaders(
+      const newAuthHeaders = this.authStrategyService.injectHeaders(
         session.strategy as 'jwt' | 'oauth' | 'apiKey',
         refreshed.accessToken,
       );
