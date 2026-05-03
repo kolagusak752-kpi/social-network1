@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { login } from "../../../api/auth";
+import { authApi } from "../../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -16,22 +16,16 @@ export default function LoginForm() {
     event.preventDefault();
 
     try {
-      let deviceId = localStorage.getItem("deviceId")
-      if(!deviceId) {
-        deviceId = crypto.randomUUID()
-        localStorage.setItem("deviceId", deviceId)
-      }
-      await login({ email: loginInput, password,deviceId});
-      await checkAuth()
+      await authApi.login({ email: loginInput, password });
+      await checkAuth();
       navigate("/");
-    } catch (error:any) {
+    } catch (error: any) {
       setError({ isError: true, message: error.message });
-      console.log("login error:", error);
     }
   }
   return (
     <div className="auth-container">
-      <form className="auth-form" onSubmit={(e)=>handleSubmit(e)}>
+      <form className="auth-form" onSubmit={(e) => handleSubmit(e)}>
         <h2 className="auth-title">Вхід</h2>
 
         <div className="auth-field">
@@ -65,7 +59,7 @@ export default function LoginForm() {
         </button>
         {error.isError && <p className="error">{error.message}</p>}
         <Link className="link" to="/registration">
-          Ще немає акаунту?Зареєструватися
+          Ще немає акаунту? Зареєструватися
         </Link>
       </form>
     </div>

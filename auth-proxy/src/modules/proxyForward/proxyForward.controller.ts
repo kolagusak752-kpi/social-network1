@@ -10,6 +10,10 @@ import {
 import { SessionService } from '../session/session.service';
 import { AuthStrategyService } from '../authStrategy/authStrategy.service';
 
+const PUBLIC_PATHS = [
+  '/users/checkUsername',
+];
+
 @Controller('api')
 export class ProxyForwardController {
   private readonly apiUrl: string;
@@ -22,8 +26,24 @@ export class ProxyForwardController {
 
   @All('*')
   async forwardRequest(@Req() req: any, @Res({ passthrough: true }) res: any) {
-    const sessionId = req.cookies?.sessionId;
+    const path = req.path.replace(/^\/api/, '');
+    console.log(path);
+    
+    const queryString = req.url.includes('?')
+      ? req.url.slice(req.url.indexOf('?'))
+      : '';
+    const url = `${this.apiUrl}${path}${queryString}`;
+    console.log(url);
 
+    const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+    if (isPublic) {
+      const apiResponse = await this.sendRequest(req, url, {});
+      const data = await apiResponse.json();
+      if (!apiResponse.ok) throw new HttpException(data, apiResponse.status);
+      return data;
+    }
+
+    const sessionId = req.cookies?.sessionId;
     if (!sessionId) {
       throw new UnauthorizedException('No session');
     }
@@ -37,11 +57,6 @@ export class ProxyForwardController {
       session.strategy as 'jwt' | 'oauth' | 'apiKey',
       session.accessToken,
     );
-    const path = req.path.replace(/^\/api/, '');
-    const queryString = req.url.includes('?')
-      ? req.url.slice(req.url.indexOf('?'))
-      : '';
-    const url = `${this.apiUrl}${path}${queryString}`;
     let apiResponse = await this.sendRequest(req, url, headers);
 
     if (apiResponse.status === 401) {
@@ -75,9 +90,13 @@ export class ProxyForwardController {
       headers['content-type'] = contentType;
     }
     const hasBody = ['POST', 'PUT', 'PATCH'].includes(req.method);
-    let body: string | undefined;
-    if (hasBody && req.body) {
-      body = JSON.stringify(req.body);
+    let body: any;
+    if (hasBody) {
+      if (contentType?.startsWith('multipart/form-data')) {
+        body = req;
+      } else if (req.body) {
+        body = JSON.stringify(req.body);
+      }
     }
 
     try {
@@ -85,7 +104,7 @@ export class ProxyForwardController {
         method: req.method,
         headers,
         body,
-      });
+      } as any);
     } catch (e) {
       throw new InternalServerErrorException('Backend service is unavailable');
     }
