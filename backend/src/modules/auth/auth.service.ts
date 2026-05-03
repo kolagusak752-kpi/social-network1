@@ -70,7 +70,6 @@ export class AuthService {
     });
     return { message: 'Пошта підтверджена' };
   }
-
   async login(dto: LoginDto) {
     const oldUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -92,11 +91,6 @@ export class AuthService {
         message: 'Неправильний пароль',
       });
     }
-    await this.prisma.refreshToken.deleteMany({
-      where: {
-        deviceId: dto.deviceId,
-      },
-    });
     const tokens = await this.issueTokens(oldUser.id, dto.deviceId);
     const { passwordHash, ...userWithoutPassword } = oldUser;
     return { user: userWithoutPassword, ...tokens };
@@ -129,7 +123,10 @@ export class AuthService {
       .verifyAsync(refreshToken, {
         secret: process.env.JWT_SECRET,
       })
-      .catch(() => {
+      .catch(async () => {
+        await this.prisma.refreshToken.deleteMany({
+          where: { token: refreshToken },
+        });
         throw new UnauthorizedException(
           'Рефреш токен не валиден или просрочен',
         );
