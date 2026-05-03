@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { User, AuthContext } from "../types/interfaces";
+import { usersApi } from "../api/users";
+import { authApi } from "../api/auth";
 
 const AuthContext = createContext<AuthContext>({
   user: null,
@@ -10,49 +12,21 @@ const AuthContext = createContext<AuthContext>({
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = async () => {
     setLoading(true);
     try {
-      const refreshRes = await fetch("/api/auth/refresh", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (!refreshRes.ok) {
-        const errorData = await refreshRes.json();
-        throw new Error(errorData.message);
-      }
-      const refreshData = await refreshRes.json();
-      const newAccessToken = refreshData.accessToken;
-      console.log(newAccessToken)
-      setAccessToken(newAccessToken);
-
-      const userRes = await fetch("/api/users/Me", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${newAccessToken}`,
-        },
-        credentials: "include",
-      });
-
-      if (!userRes.ok) {
-        throw new Error("Failed to fetch user");
-      }
-
-      const userData = await userRes.json();
-      console.log(userData);
+      const [userData, tokenData] = await Promise.all([
+        usersApi.getMe(),
+        authApi.getToken(),
+      ]);
       setUser(userData);
-    } catch (error) {
+      setAccessToken(tokenData.accessToken);
+    } catch {
       setUser(null);
       setAccessToken(null);
-      console.error(error);
     } finally {
       setLoading(false);
     }

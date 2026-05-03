@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { User } from "../types/interfaces";
+import { usersApi } from "../api/users";
+import { authApi } from "../api/auth";
 
 export default function Settings() {
   const location = useLocation();
-  const { user, accessToken, checkAuth } = useAuth();
+  const { user, checkAuth } = useAuth();
   const [avatarIsSaved, setAvaIsSаved] = useState(false);
   const [originalAvatar, setOriginalAvatar] = useState<File | null | Blob>(
     null,
@@ -47,11 +49,7 @@ export default function Settings() {
     if (fileAvatar) {
       formData.append("avatar", fileAvatar);
     }
-    await fetch("/api/users/changeAvatar", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: formData,
-    });
+    await usersApi.changeAvatar(formData);
     await checkAuth();
   }
   return (
@@ -195,13 +193,7 @@ export default function Settings() {
               </button>
               <button
                 onClick={async () => {
-                  await fetch("/api/auth/logout", {
-                    method: "POST",
-                    credentials: "include",
-                    body: JSON.stringify({
-                      deviceId: localStorage.getItem("deviceId"),
-                    }),
-                  });
+                  await authApi.logout();
                   await checkAuth();
                 }}
               >
@@ -224,14 +216,7 @@ export default function Settings() {
       id,
       ...newUserWithoutOthers
     } = newUser;
-    const res = await fetch("/api/users/updateProfile", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(newUserWithoutOthers),
-    });
-    await checkAuth()
+    await usersApi.updateProfile(newUserWithoutOthers);
+    await checkAuth();
   }
 }

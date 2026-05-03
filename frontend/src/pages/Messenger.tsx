@@ -1,6 +1,8 @@
 import {  useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { usersApi } from "../api/users";
+import { messagesApi } from "../api/messages";
 import { socket } from "../App";
 import {
   AlertCircle,
@@ -12,7 +14,7 @@ import {
 } from "lucide-react";
 import Loader from "../components/Loading/Loader";
 import UseDebounce from "../hooks/UseDebounce";
-import type { Conversation, Participant, ChatImage } from "../types/interfaces";
+import type { Conversation, Participant, ChatImage, User } from "../types/interfaces";
 
 function MessageStatus({ status }: { status?: string }) {
   const s = status ?? "sent";
@@ -21,10 +23,9 @@ function MessageStatus({ status }: { status?: string }) {
   return <Check size={12} color="#4fc3f7" />;
 }
 export default function Messenger() {
-  const { user, accessToken, loading } = useAuth();
-  console.log("accessToken", accessToken);
+  const { user, loading } = useAuth();
 
-  const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] =
     useState<Conversation | null>(null);
   const [activeUsers, setActiveUsers] = useState<Participant[] | []>([]);
@@ -33,7 +34,7 @@ export default function Messenger() {
   const [findInput, setFindInput] = useState("");
   const findText = UseDebounce(findInput, 500);
   const [findActive, setFindActive] = useState(false);
-  const [findResult, setFindResult] = useState([]);
+  const [findResult, setFindResult] = useState<User[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [inputFiles, setInputFiles] = useState<ChatImage[] | []>([]);
   const inputFilesRef = useRef<HTMLInputElement>(null);
@@ -165,49 +166,16 @@ export default function Messenger() {
   }, [activeConversation]);
 
   useEffect(() => {
-    async function getConversations() {
-      try {
-        const res = await fetch("/api/messages/getConversationList", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const data = await res.json();
-        console.log(data);
-        if (!res.ok) throw new Error(data.message);
-
-        setConversations(data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    getConversations();
-  }, [accessToken]);
+    if (!user) return;
+    messagesApi.getConversationList()
+      .then((data) => setConversations(data))
+      .catch(console.log);
+  }, [user]);
   useEffect(() => {
     if (!findText) return;
-    async function findUser() {
-      try {
-        const res = await fetch(
-          `/api/users/findByUsername?username=${findText}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-        setFindResult(data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    findUser();
+    usersApi.findByUsername(findText)
+      .then((data) => setFindResult(data))
+      .catch(console.log);
   }, [findText]);
 
   return (
@@ -232,7 +200,7 @@ export default function Messenger() {
                 onClick={() => {
                   console.log(conversation);
                   setActiveConversation(conversation.id);
-                  setActiveUsers(conversation.participants);
+                  setActiveUsers(conversation.participants ?? []);
                 }}
               >
                 <div className="participants-info" key={conversation.id}>
@@ -280,7 +248,7 @@ export default function Messenger() {
             </>
           )}
         </div>
-        {activeConversation && (
+        {activeConversation && activeUsers.length > 0 && (
           <div className="active-chat">
             <div className="active-user">
               <Link
@@ -307,13 +275,8 @@ export default function Messenger() {
                       <div className="message-attachments">
                         {" "}
                         {message.attachments.map((attachment: any) => {
-                          let url = "";
-                          if (typeof message.attachments === "object") {
-                            url = attachment.URL;
-                          } else {
-                            url = attachment;
-                          }
-                          return <img src={url} alt="attachment"></img>;
+                          const url = typeof attachment === "string" ? attachment : attachment.url ?? attachment.URL;
+                          return <img src={url} alt="attachment" key={url}></img>;
                         })}
                       </div>
                     )}
@@ -409,24 +372,13 @@ export default function Messenger() {
     setInputFiles([]);
 
     try {
-      let finalAttachments = [];
+      let finalAttachments: any = [];
       if (currentFiles.length !== 0) {
         const formdata = new FormData();
         currentFiles.map((el) => {
           formdata.append("inputFiles", el.file);
         });
-        const res = await fetch("/api/messages/uploadAttachments", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: formdata,
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message);
-        }
-        finalAttachments = data;
+        finalAttachments = await messagesApi.uploadAttachments(formdata);
         console.log("finalAttachments", finalAttachments);
       }
 
@@ -460,22 +412,9 @@ export default function Messenger() {
 
   async function findOrCreateConversation(userId: string) {
     try {
-      const res = await fetch(
-        `/api/messages/findOrCreateConversation/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-      const data = await res.json();
-      console.log(data);
-      if (!res.ok) throw new Error(data.message);
-
+      const data: any = await messagesApi.findOrCreateConversation(userId);
       setActiveMessages(data.messages || []);
-      setActiveUsers(data.participants);
+      setActiveUsers(data.participants ?? []);
       return data.id;
     } catch (error) {
       console.log(error);

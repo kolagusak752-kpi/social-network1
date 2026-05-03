@@ -45,24 +45,12 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('refresh')
-  async getNewTokens(@Req() req: any, @Res({ passthrough: true }) res: any) {
-    const refreshToken = req.cookies.refreshToken
-
-    const data = await this.authService.updateTokens(refreshToken);
-
-    res.cookie('refreshToken', data.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return data;
+  async getNewTokens(@Body() body: { refreshToken: string; deviceId: string }) {
+    return this.authService.updateTokens(body.refreshToken);
   }
 
   @Post('logout')
-  logout(@Req() req:any, @Body() deviceId:string) {
-    const refreshToken = req.cookies.refreshToken
-    return this.authService.logout(refreshToken, deviceId);
+  logout(@Body() body: { refreshToken: string; deviceId: string }) {
+    return this.authService.logout(body.refreshToken, body.deviceId);
   }
 }
