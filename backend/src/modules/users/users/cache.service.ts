@@ -1,9 +1,9 @@
-    import { Injectable, NotFoundException } from "@nestjs/common";
+    import { Injectable, NotFoundException, Inject, forwardRef } from "@nestjs/common";
     import { UsersService } from "./users.service";
     import { AbstractUserService } from "./abstract-user.service";
     @Injectable()
     export class CacheService implements AbstractUserService {
-        constructor(private userService: UsersService) {}
+        constructor(@Inject(forwardRef(() => UsersService)) private userService: UsersService) {}
         cache: Map<string, any> = new Map();
         maxSize = 1000;
         async findUserById(userId: string): Promise<any> {

@@ -197,7 +197,7 @@ export default function Messenger() {
                 onClick={() => {
                   console.log(conversation);
                   setActiveConversation(conversation.id);
-                  setActiveUsers(conversation.participants);
+                  setActiveUsers(conversation.participants ?? []);
                 }}
               >
                 <div className="participants-info" key={conversation.id}>
@@ -245,7 +245,7 @@ export default function Messenger() {
             </>
           )}
         </div>
-        {activeConversation && (
+        {activeConversation && activeUsers.length > 0 && (
           <div className="active-chat">
             <div className="active-user">
               <Link
@@ -272,13 +272,8 @@ export default function Messenger() {
                       <div className="message-attachments">
                         {" "}
                         {message.attachments.map((attachment: any) => {
-                          let url = "";
-                          if (typeof message.attachments === "object") {
-                            url = attachment.URL;
-                          } else {
-                            url = attachment;
-                          }
-                          return <img src={url} alt="attachment"></img>;
+                          const url = typeof attachment === "string" ? attachment : attachment.url ?? attachment.URL;
+                          return <img src={url} alt="attachment" key={url}></img>;
                         })}
                       </div>
                     )}
@@ -415,7 +410,7 @@ export default function Messenger() {
     try {
       const data: any = await messagesApi.findOrCreateConversation(userId);
       setActiveMessages(data.messages || []);
-      setActiveUsers(data.participants);
+      setActiveUsers(data.participants ?? []);
       return data.id;
     } catch (error) {
       console.log(error);

@@ -10,6 +10,6 @@ import { AbstractUserService } from './abstract-user.service';
 @Module({
   imports:[AuthModule,FilesModule],
   controllers: [UsersController],
-  providers: [{ provide: AbstractUserService, useClass: CacheService },PrismaService, CacheService, QueueService]
+  providers: [{ provide: AbstractUserService, useClass: CacheService }, PrismaService, UsersService, CacheService, QueueService]
 })
 export class UsersModule {}
