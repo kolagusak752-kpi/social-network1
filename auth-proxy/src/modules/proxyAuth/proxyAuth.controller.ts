@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   InternalServerErrorException,
   Post,
@@ -8,6 +9,7 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { LoginDto } from './dto/login.dto';
 import { SessionService } from '../session/session.service';
 import { RegisterDto } from './dto/register.dto';
@@ -41,6 +43,7 @@ export class ProxyAuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
     const sessionId = randomUUID();
     const data = await this.forwardRequest(`${this.apiUrl}/auth/login`, {
@@ -88,6 +91,17 @@ export class ProxyAuthController {
     this.sessionService.deleteSession(sessionId);
     res.clearCookie('sessionId');
     return { message: 'Logout successful' };
+  }
+
+  @Get('token')
+  getToken(@Req() req: any) {
+    const sessionId = req.cookies?.sessionId;
+    if (!sessionId) throw new UnauthorizedException('No session');
+
+    const session = this.sessionService.getSession(sessionId);
+    if (!session) throw new UnauthorizedException('Session not found or expired');
+
+    return { accessToken: session.accessToken };
   }
 
   @Post('register')
