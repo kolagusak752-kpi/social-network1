@@ -93,7 +93,11 @@ export class ProxyForwardController {
     let body: any;
     if (hasBody) {
       if (contentType?.startsWith('multipart/form-data')) {
-        body = req;
+        const chunks: Buffer[] = [];
+        for await (const chunk of req as any) {
+          chunks.push(Buffer.from(chunk));
+        }
+        body = Buffer.concat(chunks);
       } else if (req.body) {
         body = JSON.stringify(req.body);
       }
@@ -104,7 +108,7 @@ export class ProxyForwardController {
         method: req.method,
         headers,
         body
-      } as any);
+      });
     } catch (e) {
       throw new InternalServerErrorException('Backend service is unavailable');
     }
