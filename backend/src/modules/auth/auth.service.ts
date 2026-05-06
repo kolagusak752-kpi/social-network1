@@ -23,7 +23,7 @@ export class AuthService {
   ) {}
   
   @Logger({level: 'info', mode: 'file'})
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, req: any = null) {
     try {
       const oldUser = await this.prisma.user.findUnique({
         where: { email: dto.email },
@@ -55,7 +55,7 @@ export class AuthService {
     return { message: 'Реєстрація прошла успішно' };
   }
   @Logger({level: 'info', mode: 'file'})
-  async verify(dto: VerificationDto) {
+  async verify(dto: VerificationDto, req: any = null) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -72,7 +72,7 @@ export class AuthService {
     return { message: 'Пошта підтверджена' };
   }
   @Logger({level: 'info', mode: 'file'})
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, req: any = null) {
     const oldUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -98,7 +98,7 @@ export class AuthService {
     return { user: userWithoutPassword, ...tokens };
   }
   @Logger({level: 'info', mode: 'file'})
-  private async issueTokens(userId: string, deviceId: string) {
+  private async issueTokens(userId: string, deviceId: string, req: any = null) {
     const payload = { id: userId };
     const accessToken = await this.jwt.signAsync(payload, {
       expiresIn: '15m',
@@ -121,7 +121,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
   @Logger({level: 'info', mode: 'file'})
-  async updateTokens(refreshToken: any) {
+  async updateTokens(refreshToken: any, req: any = null) {
     const payload = await this.jwt
       .verifyAsync(refreshToken, {
         secret: process.env.JWT_SECRET,
@@ -149,7 +149,7 @@ export class AuthService {
     return this.issueTokens(payload.id, deviceId);
   }
   @Logger({level: 'info', mode: 'console'})
-  async logout(refreshToken, deviceId) {
+  async logout(refreshToken, deviceId, req: any = null) {
     const tokenInDb = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });

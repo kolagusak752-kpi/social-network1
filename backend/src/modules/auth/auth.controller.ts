@@ -23,9 +23,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
+  async register(@Body() dto: RegisterDto, @Req() req: any) {
       console.log(dto);
-      return await this.authService.register(dto);
+      return await this.authService.register(dto, req);
 
   }
   @Post('verify')
@@ -33,8 +33,8 @@ export class AuthController {
     return this.authService.verify(dto);
   }
     @Post('login')
-    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any) {
-      const data = await this.authService.login(dto);
+    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: any, @Req() req: any) {
+      const data = await this.authService.login(dto, req);
       res.cookie('refreshToken', data.refreshToken, {
         httpOnly: true,
         secure: false,
@@ -46,12 +46,12 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('refresh')
-  async getNewTokens(@Body() body: { refreshToken: string; deviceId: string }) {
-    return this.authService.updateTokens(body.refreshToken);
+  async getNewTokens(@Body() body: { refreshToken: string; deviceId: string }, @Req() req: any) {
+    return this.authService.updateTokens(body.refreshToken, req);
   }
 
   @Post('logout')
-  logout(@Body() body: { refreshToken: string; deviceId: string }) {
-    return this.authService.logout(body.refreshToken, body.deviceId);
+  logout(@Body() body: { refreshToken: string; deviceId: string }, @Req() req: any) {
+    return this.authService.logout(body.refreshToken, body.deviceId, req);
   }
 }

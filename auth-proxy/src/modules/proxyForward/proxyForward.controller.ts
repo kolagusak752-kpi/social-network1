@@ -82,9 +82,10 @@ export class ProxyForwardController {
     return data;
   }
 
-  async sendRequest(req: Request, url, authHeaders) {
+  async sendRequest(req: any, url, authHeaders) {
     const headers = { ...authHeaders };
     const contentType = req.headers['content-type'];
+
 
     if (contentType) {
       headers['content-type'] = contentType;
