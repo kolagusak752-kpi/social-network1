@@ -10,9 +10,7 @@ import {
 import { SessionService } from '../session/session.service';
 import { AuthStrategyService } from '../authStrategy/authStrategy.service';
 
-const PUBLIC_PATHS = [
-  '/users/checkUsername',
-];
+const PUBLIC_PATHS = ['/users/checkUsername'];
 
 @Controller('api')
 export class ProxyForwardController {
@@ -21,14 +19,14 @@ export class ProxyForwardController {
     private sessionService: SessionService,
     private authStrategyService: AuthStrategyService,
   ) {
-    this.apiUrl = "http://localhost:4200";
+    this.apiUrl = 'http://localhost:4200';
   }
 
   @All('*')
   async forwardRequest(@Req() req: any, @Res({ passthrough: true }) res: any) {
     const path = req.path.replace(/^\/api/, '');
     console.log(path);
-    
+
     const queryString = req.url.includes('?')
       ? req.url.slice(req.url.indexOf('?'))
       : '';
@@ -54,7 +52,7 @@ export class ProxyForwardController {
     }
 
     const headers = this.authStrategyService.injectHeaders(
-      session.strategy as 'jwt' | 'oauth' | 'apiKey',
+      session.strategy,
       session.accessToken,
     );
     let apiResponse = await this.sendRequest(req, url, headers);
@@ -75,17 +73,23 @@ export class ProxyForwardController {
       );
       apiResponse = await this.sendRequest(req, url, newAuthHeaders);
     }
-    const data = await apiResponse.json();
+    const text = await apiResponse.text();
+    const data = text ? JSON.parse(text) : null;
     if (!apiResponse.ok) {
       throw new HttpException(data, apiResponse.status);
     }
     return data;
   }
 
-  async sendRequest(req: any, url, authHeaders) {
+  async *generateRequestChunks(req: any) {
+    for await (const chunk of req) {
+      yield Buffer.from(chunk);
+    }
+  }
+
+  async sendRequest(req: Request, url, authHeaders) {
     const headers = { ...authHeaders };
     const contentType = req.headers['content-type'];
-
 
     if (contentType) {
       headers['content-type'] = contentType;
@@ -95,8 +99,8 @@ export class ProxyForwardController {
     if (hasBody) {
       if (contentType?.startsWith('multipart/form-data')) {
         const chunks: Buffer[] = [];
-        for await (const chunk of req as any) {
-          chunks.push(Buffer.from(chunk));
+        for await (const chunk of this.generateRequestChunks(req)) {
+          chunks.push(chunk);
         }
         body = Buffer.concat(chunks);
       } else if (req.body) {
@@ -108,7 +112,7 @@ export class ProxyForwardController {
       return await fetch(url, {
         method: req.method,
         headers,
-        body
+        body,
       });
     } catch (e) {
       throw new InternalServerErrorException('Backend service is unavailable');

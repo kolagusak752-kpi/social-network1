@@ -50,7 +50,7 @@ export class UsersController {
       throw new Error('Файл загубився по дорозі!');
     }
     const cdnData = await this.filesService.uploadFile(file);
-    await this.userService.changeAvatar(cdnData.data.url, req.user.id);
+    return this.userService.changeAvatar(cdnData.data.url, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
