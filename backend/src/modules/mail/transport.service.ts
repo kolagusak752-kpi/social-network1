@@ -33,6 +33,7 @@ export class TransportService {
   }
   async sendMail(to: string, content?: string) {
     try {
+      console.log(`Відправка сповіщення на ${to} з вмістом: ${content}`);
       await this.transporter.sendMail({
         from: `"Messenger" <${process.env.SMTP_USER}>`,
         to: to,

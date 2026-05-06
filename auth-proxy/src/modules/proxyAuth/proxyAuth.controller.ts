@@ -16,12 +16,13 @@ import { RegisterDto } from './dto/register.dto';
 import { randomUUID } from 'crypto';
 import { VerificationDto } from './dto/verification.dto';
 
+
 @Controller('proxy')
 export class ProxyAuthController {
   private readonly apiUrl: string;
 
   constructor(private sessionService: SessionService) {
-    this.apiUrl = process.env.API_URL!;
+    this.apiUrl = "http://localhost:4200";
   }
 
   private async forwardRequest(url: string, body: unknown): Promise<any> {
@@ -32,13 +33,10 @@ export class ProxyAuthController {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-    } catch {
-      throw new InternalServerErrorException('Backend service is unavailable');
+    } catch(e){
+      throw e;
     }
-    console.log(response);
-    
     const text = await response.text();
-    console.log(text);
     const data = text ? JSON.parse(text) : null;
     if (!response.ok) {
       throw new HttpException(data, response.status);
@@ -78,6 +76,7 @@ export class ProxyAuthController {
   @Post('logout')
   async logout(@Req() req: any, @Res({ passthrough: true }) res: any) {
     const sessionId = req.cookies?.sessionId;
+    console.log(req.ip, "attempting logout with sessionId:");
     if (!sessionId) {
       throw new UnauthorizedException('No session');
     }
@@ -110,6 +109,7 @@ export class ProxyAuthController {
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
+    console.log(dto);
     return this.forwardRequest(`${this.apiUrl}/auth/register`, dto);
   }
 

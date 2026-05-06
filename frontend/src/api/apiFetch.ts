@@ -14,6 +14,7 @@ function request<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const isFormData = options.body instanceof FormData;
+  console.log("Requesting:", url, options);
   return fetch(url, {
     ...options,
     headers: isFormData ? {} : { "Content-Type": "application/json" },

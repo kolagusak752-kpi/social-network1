@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { TransportService } from '../mail/transport.service';
 import { VerificationDto } from './dto/verification.dto';
+import {Logger} from "../../decorators/log.decorator";
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,8 @@ export class AuthService {
     private jwt: JwtService,
     private transportService: TransportService,
   ) {}
-
+  
+  @Logger({level: 'info', mode: 'file'})
   async register(dto: RegisterDto) {
     try {
       const oldUser = await this.prisma.user.findUnique({
@@ -43,17 +45,16 @@ export class AuthService {
           verificationCode: code,
         },
       });
-
+      console.log(`Код для ${dto.email}: ${code}`);
       await this.transportService.sendMail(dto.email, code);
     } catch (error: any) {
-      if (error.code === 'P2002') {
         throw new BadRequestException({
           message: 'Користувач з такою поштою або іменем вже існує',
         });
-      }
     }
     return { message: 'Реєстрація прошла успішно' };
   }
+  @Logger({level: 'info', mode: 'file'})
   async verify(dto: VerificationDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -70,6 +71,7 @@ export class AuthService {
     });
     return { message: 'Пошта підтверджена' };
   }
+  @Logger({level: 'info', mode: 'file'})
   async login(dto: LoginDto) {
     const oldUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -95,7 +97,7 @@ export class AuthService {
     const { passwordHash, ...userWithoutPassword } = oldUser;
     return { user: userWithoutPassword, ...tokens };
   }
-
+  @Logger({level: 'info', mode: 'file'})
   private async issueTokens(userId: string, deviceId: string) {
     const payload = { id: userId };
     const accessToken = await this.jwt.signAsync(payload, {
@@ -118,6 +120,7 @@ export class AuthService {
     });
     return { accessToken, refreshToken };
   }
+  @Logger({level: 'info', mode: 'file'})
   async updateTokens(refreshToken: any) {
     const payload = await this.jwt
       .verifyAsync(refreshToken, {
@@ -145,6 +148,7 @@ export class AuthService {
     });
     return this.issueTokens(payload.id, deviceId);
   }
+  @Logger({level: 'info', mode: 'console'})
   async logout(refreshToken, deviceId) {
     const tokenInDb = await this.prisma.refreshToken.findUnique({
       where: { token: refreshToken },
