@@ -4,11 +4,10 @@ import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { CacheService } from './cache.service';
 import { QueueService } from './queue.service';
 import { FilesService } from 'src/modules/cdn/files.service';
-import { AbstractUserService } from './abstract-user.service';
 
 @Injectable()
-export class UsersService implements AbstractUserService {
-  constructor(private prisma: PrismaService, @Inject(forwardRef(() => CacheService)) private cache: CacheService, private queue: QueueService, private filesService: FilesService) {}
+export class UsersService {
+  constructor(private prisma: PrismaService, private cache: CacheService, private queue: QueueService, private filesService: FilesService) {}
   async findUserById(userId: string) {
     try{
       const cachedUser = this.cache.get(userId);

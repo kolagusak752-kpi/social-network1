@@ -1,27 +1,11 @@
-    import { Injectable, NotFoundException, Inject, forwardRef } from "@nestjs/common";
+    import { Injectable, NotFoundException } from "@nestjs/common";
     import { UsersService } from "./users.service";
-    import { AbstractUserService } from "./abstract-user.service";
+
     @Injectable()
-    export class CacheService implements AbstractUserService {
-        constructor(@Inject(forwardRef(() => UsersService)) private userService: UsersService) {}
+    export class CacheService {
+        constructor() {}
         cache: Map<string, any> = new Map();
         maxSize = 1000;
-        async findUserById(userId: string): Promise<any> {
-            try {
-            const user = await this.userService.findUserById(userId)
-            ;
-            if (user) {
-                this.set(userId, user);
-                return user;
-            } else {
-                throw new NotFoundException('Користувач з таким айді не знайдений');
-            }
-        } catch(e) {
-            console.log(e)
-            return null;
-        }
-        }
-
         set(userId: string, data: any) {
             if (this.cache.size >= this.maxSize) {
                 this.removeLFU()

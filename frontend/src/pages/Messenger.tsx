@@ -37,11 +37,13 @@ export default function Messenger() {
   const [findResult, setFindResult] = useState<User[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [inputFiles, setInputFiles] = useState<ChatImage[] | []>([]);
+  const inputFilesRef = useRef<HTMLInputElement>(null);
   const isFirstLoad = useRef(false);
   const messageEnd = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const previousScrollHeight = useRef(0);
   const messagesContainer = useRef<HTMLDivElement>(null);
+
 
   function handleScroll() {
     const container = messagesContainer.current;
@@ -93,6 +95,7 @@ export default function Messenger() {
         url: url,
       },
     ]);
+    inputFilesRef.current!.value = "";
   }
 
   useEffect(() => {
@@ -323,6 +326,7 @@ export default function Messenger() {
                 ></textarea>
                 <div className="message-buttons">
                   <input
+                    ref={inputFilesRef}
                     type="file"
                     id="inputFile"
                     className="inputFile"

@@ -18,13 +18,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { FilesService } from 'src/modules/cdn/files.service';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
-import { AbstractUserService } from './abstract-user.service';
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly userService: UsersService,
     private readonly filesService: FilesService,
-    private readonly abstractUserService: AbstractUserService,
   ) {}
 
   @Get('all')
@@ -39,7 +37,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @Get('profile/:userId')
   async getProfile(@Param('userId') userId: string) {
-    return this.abstractUserService.findUserById(userId);
+    return this.userService.findUserById(userId);
   }
   @UseGuards(AuthGuard('jwt'))
   @Post('changeAvatar')

@@ -21,7 +21,7 @@ export class ProxyForwardController {
     private sessionService: SessionService,
     private authStrategyService: AuthStrategyService,
   ) {
-    this.apiUrl = process.env.API_URL!;
+    this.apiUrl = "http://localhost:4200";
   }
 
   @All('*')
