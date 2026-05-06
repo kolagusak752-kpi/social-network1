@@ -10,6 +10,12 @@ export function Logger(options: LogOptions) {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const originalMethod = descriptor.value;
         descriptor.value = function(...args: any[]) {
+            const requestMethods = ['POST', 'GET', 'PATCH', 'DELETE', 'PUT']
+            const req = args.find((arg) => requestMethods.includes(arg.method) )
+            const ip = req?.headers['x-forwarded-for'] 
+            const userAgent = req?.headers['user-agent']
+            
+            
             const writeLog = () => {
                 const possibleMessages:string[] = []
                 if(options.level === 'info') {
@@ -25,7 +31,7 @@ export function Logger(options: LogOptions) {
                     return
                 }
                 const timeStamp = new Date().toISOString()
-                const log = JSON.stringify({methodName: propertyKey, timeStamp, message, data})
+                const log = JSON.stringify({methodName: propertyKey, timeStamp, message, data, ip, userAgent})
                 if(options.mode === 'file') {
                     const filePath = path.join(process.cwd(), "./src/logs/log.txt")
                     fs.appendFileSync(filePath, log + '\n', "utf-8")

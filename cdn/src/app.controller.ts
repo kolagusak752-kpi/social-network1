@@ -28,26 +28,13 @@ export class AppController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads',
+
         filename: (req, file, cb) => {
           const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
           console.log(extname(file.originalname));
           cb(null, uniqueName);
         },
       }),
-      fileFilter: (req, file, callback) => {
-        const allowedMimes = [
-          'image/jpeg',
-          'image/jpg',
-          'image/png',
-          'image/gif',
-          'image/webp',
-        ];
-        if (allowedMimes.includes(file.mimetype)) {
-          callback(null, true);
-        } else {
-          callback(new BadRequestException('Непідтримуваний формат файлу'), false);
-        }
-      },
     }),
   )
   upload(
@@ -68,15 +55,12 @@ export class AppController {
       data: {
         filename: file.filename,
         originalName: file.originalname,
-        size: file.size,
-        mimeType: file.mimetype,
         url: `/cdn/images/${file.filename}`,
       },
     };
   }
 
   @Get('images/:filename')
-  @Header('Cache-Control', 'public, max-age=31536000')
   getImage(@Param('filename') filename: string): StreamableFile {
     if (
       filename.includes('..') ||
@@ -129,6 +113,6 @@ export class AppController {
       return { success: true, message: 'Зображення успішно видалено' };
     } catch (error) {
       throw new BadRequestException('Помилка при видаленні зображення');
-}
+    }
   }
 }
