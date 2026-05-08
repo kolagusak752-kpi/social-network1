@@ -1,21 +1,20 @@
-import { useState, useEffect, useRef, type ReactEventHandler } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-export default function CropContainer() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
+import { useState, useRef } from "react";
+
+export default function CropContainer({
+  fileURL,
+  onClose,
+  handleupload,
+}: {
+  fileURL: string | null;
+  onClose: () => void;
+  handleupload: (file: File) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(false);
   const [scale, setScale] = useState(1);
   const dragStart = useRef({ x: 0, y: 0 });
-  const imageRef = useRef(null);
-  const [originalAvatarURL, setOriginalAvatarURL] = useState("");
-  useEffect(() => {
-    if (!location.state?.originalAvatar) return;
-    const url = URL.createObjectURL(location.state.originalAvatar);
-    setOriginalAvatarURL(url);
-  }, [location.state?.originalAvatar]);
+  const imageRef = useRef<HTMLImageElement>(null);
   function onMouseDown(e: any) {
     setDrag(true);
     dragStart.current = {
@@ -43,8 +42,8 @@ export default function CropContainer() {
     }
   }
   function onSave() {
-    if (!imageRef.current) {
-      console.error("Картинка еще не загрузилась!");
+    if (!imageRef.current || !containerRef.current) {
+      console.error("Картинка ще не загрузилася");
       return;
     }
     const canvas = document.createElement("canvas");
@@ -52,11 +51,12 @@ export default function CropContainer() {
     const circleSize = 170;
     canvas.width = circleSize;
     canvas.height = circleSize;
-    ctx?.beginPath;
+    ctx?.beginPath();
     ctx?.arc(circleSize / 2, circleSize / 2, circleSize / 2, 0, Math.PI * 2);
     ctx?.clip();
-    const offsetX = 1000 / 2 - 100;
-    const offsetY = 650 / 2 - 100;
+    const rect = containerRef.current.getBoundingClientRect();
+    const offsetX = rect.width / 2 - 85;
+    const offsetY = rect.height / 2 - 85;
     const sx = (offsetX - position.x) / scale;
     const sy = (offsetY - position.y) / scale;
     const sSize = circleSize / scale;
@@ -71,19 +71,15 @@ export default function CropContainer() {
       circleSize,
       circleSize,
     );
-    canvas.toBlob((blob) => {
+    canvas.toBlob(async (blob) => {
       if (!blob) return;
       const croppedFile = new File([blob], "avatar.png", { type: "image/png" });
-      navigate("/settings", {
-        state: {
-          croppedAvatar: croppedFile,
-          originalAvatar: location.state.originalAvatar,
-        },
-      });
+      await handleupload(croppedFile);
+      onClose();
     });
   }
   const avatarImgStyle = {
-    posititon: "absolute",
+    position: "absolute" as const,
     transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
     transformOrigin: "0 0",
   };
@@ -91,6 +87,7 @@ export default function CropContainer() {
     <div className="main-wrapper-crop">
       <div
         className="crop-container"
+        ref={containerRef}
         onMouseDown={(e) => onMouseDown(e)}
         onMouseUp={onMouseUp}
         onMouseMove={(e) => onMouseMove(e)}
@@ -100,7 +97,7 @@ export default function CropContainer() {
         }}
       >
         <img
-          src={originalAvatarURL || user?.avatar}
+          src={fileURL ? fileURL : ""}
           style={avatarImgStyle}
           draggable={false}
           ref={imageRef}
@@ -109,15 +106,15 @@ export default function CropContainer() {
       </div>
       <div className="crop-buttons">
         <button className="save-button" onClick={onSave}>
-          Готово
+          Зберегти
         </button>
-        <button onClick = {() => {
-          navigate("/settings", {
-        state: {
-          originalAvatar: location.state.originalAvatar,
-        },
-      });
-        }}>Назад</button>
+        <button
+          onClick={() => {
+            onClose();
+          }}
+        >
+          Назад
+        </button>
       </div>
     </div>
   );

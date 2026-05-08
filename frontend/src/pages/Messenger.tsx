@@ -255,7 +255,7 @@ export default function Messenger() {
                 to={`/profile/${activeUsers[0].user.id}`}
                 className="user-profile-link"
               >
-                <img src={activeUsers[0].user.avatar} className="avatar"></img>
+                <img src={activeUsers[0].user.avatars?.url} className="avatar"></img>
                 {activeUsers[0].user.username}
               </Link>
             </div>

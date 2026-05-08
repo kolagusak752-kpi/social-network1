@@ -17,7 +17,7 @@ export function Logger(options: LogOptions) {
             
             
             const writeLog = () => {
-                const possibleMessages:string[] = []
+                const possibleMessages:string[]= []
                 if(options.level === 'info') {
                     possibleMessages.push('Success', 'Error')
                 }

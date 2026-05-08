@@ -18,7 +18,7 @@ export default function ProfilePage() {
     <div className="main-wrapper-profile">
       <section className="info-block">
         <div className="avatar-image">
-          <img src={userData?.avatar}></img>
+          <img src={userData?.avatars?.url} alt="Avatar" />
         </div>
         <div className="user-info">
           <p>{userData?.username}</p>

@@ -1,7 +1,7 @@
 export interface User {
   id: number;
   username: string;
-  avatar: string | undefined;
+  avatars: { url: string, originalAvatarUrl: string } | null;
   bio: string | null;
   email: string | null;
   isPrivate: boolean;

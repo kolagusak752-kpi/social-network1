@@ -75,6 +75,7 @@ export class AuthService {
   async login(dto: LoginDto, req: any = null) {
     const oldUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
+      include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
     });
     if (!oldUser) {
       throw new NotFoundException({

@@ -1,5 +1,7 @@
 @use '../variables/root' as v;
 .main-wrapper-crop {
+    z-index: 1000;
+    position: fixed;
     background-color: v.$main-bg;
     width: 100%;
     height: calc(100vh - 60px);
@@ -11,7 +13,7 @@
 }
 
 .crop-container {
-    background-color: rgb(176, 168, 168);
+    background-color: rgb(255, 255, 255);
     margin: 20px;
     width: 1000px;
     height: 650px;

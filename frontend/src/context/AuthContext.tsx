@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         authApi.getToken(),
       ]);
       setUser(userData);
+      console.log(userData)
       setAccessToken(tokenData.accessToken);
     } catch {
       setUser(null);

@@ -66,7 +66,7 @@ export class MessageService {
       include: {
         messages: true,
         participants: { where: { userId: { not: myUserId } }, include: {
-          user: { select: { id: true, username: true, avatar: true } },
+          user: { select: { id: true, username: true, avatars: {select:{url:true, originalAvatarUrl:true}}} },
         } },
       },
     });

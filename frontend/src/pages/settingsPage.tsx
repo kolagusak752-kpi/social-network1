@@ -4,37 +4,28 @@ import { useNavigate, useLocation } from "react-router-dom";
 import type { User } from "../types/interfaces";
 import { usersApi } from "../api/users";
 import { authApi } from "../api/auth";
+import CropContainer from "../components/CropCotainer/CropContainer";
 
 export default function Settings() {
   const location = useLocation();
   const { user, checkAuth } = useAuth();
-  const [avatarIsSaved, setAvaIsSаved] = useState(false);
+  const [avatarIsSaved, setAvatarIsSaved] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [originalAvatar, setOriginalAvatar] = useState<File | null | Blob>(
     null,
   );
   const [originalAvatarURL, setOriginalAvatarURL] = useState<string | null>(
     null,
   );
-  const [croppedAvatar, setCroppedAvatar] = useState<File | null | Blob>(null);
   const [croppedAvatarURL, setCroppedAvatarURL] = useState<string | null>(null);
   const [newUser, setNewUser] = useState<User | null>(user);
   const [exitDiv, setExitDiv] = useState(false);
-  const navigate = useNavigate();
   useEffect(() => {
-    let url = ""
-    if (location.state?.croppedAvatar) {
-      setCroppedAvatar(location.state.croppedAvatar);
-       url = URL.createObjectURL(location.state.croppedAvatar);
-      setCroppedAvatarURL(url);
+    if(user) {
+      setOriginalAvatarURL(user.avatars?.originalAvatarUrl || null);
+      setCroppedAvatarURL(user.avatars?.url || null);
     }
-    if (location.state?.originalAvatar) {
-      setOriginalAvatar(location.state.originalAvatar);
-    }
-
-
-    window.history.replaceState({}, document.title);
-    return () => URL.revokeObjectURL(url)
-  }, [location.state]);
+  }, [user]);
   useEffect(() => {
     let url = ""
     if (originalAvatar) {
@@ -43,31 +34,44 @@ export default function Settings() {
     }
     return () => URL.revokeObjectURL(url)
   }, [originalAvatar]);
-  async function handleChangeAvatar() {
+  async function handleSelectedFile(e: React.ChangeEvent<HTMLInputElement>) {
+    setOriginalAvatar(e.target.files ? e.target.files[0] : null);
+    setIsModalOpen(true);
+    e.target.value = "";
+  }
+  async function handleChangeAvatar(croppedFile?: File) {
     const formData = new FormData();
-    const fileAvatar = croppedAvatar || originalAvatar;
-    if (fileAvatar) {
-      formData.append("avatar", fileAvatar);
+    const originalFile = originalAvatar
+    if(!croppedFile) return
+      formData.append("croppedAvatar", croppedFile)
+    if (originalFile) {
+      formData.append("originalAvatar", originalFile);
     }
-    await usersApi.changeAvatar(formData);
-    await checkAuth();
+    try {
+      await usersApi.changeAvatar(formData);
+      await checkAuth();
+    } catch (e) {
+      console.log(e);
+    }
   }
   return (
-    <>
+    <>{isModalOpen && (
+      <CropContainer fileURL = {originalAvatarURL} onClose={() => setIsModalOpen(false)} handleupload={handleChangeAvatar}/>
+    )}
       <div className="main-wrapper-settings">
         <section className="profile-block">
           <div className="user-avatar-settings">
             <div
               className="avatar-image-settings"
-              onClick={() =>
-                navigate("/editAvatar", {
-                  state: { originalAvatar: originalAvatar },
-                })
+              onClick={() => {
+                if (originalAvatarURL) {
+                  setIsModalOpen(true)}
+                }
               }
             >
               <img
                 src={
-                  croppedAvatarURL || originalAvatarURL || user?.avatar || ""
+                  croppedAvatarURL || ""
                 }
                 alt="Ава"
               ></img>
@@ -78,24 +82,13 @@ export default function Settings() {
                 className="input-avatar"
                 type="file"
                 onChange={(e) => {
-                  setCroppedAvatarURL(null);
-                  setOriginalAvatar(e.target.files ? e.target.files[0] : null);
+                  handleSelectedFile(e)
                 }}
               />
               <label htmlFor="input-avatar" className="btn-choose-avatar">
                 Вибрати аву
               </label>
               <div className="save-avatar">
-                <button
-                  className="btn-save-avatar"
-                  onClick={() => {
-                    handleChangeAvatar();
-                    setAvaIsSаved(true);
-                  }}
-                >
-                  Зберегти
-                  {avatarIsSaved && <p>Аву збережено</p>}
-                </button>
               </div>
             </div>
           </div>

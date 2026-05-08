@@ -5,16 +5,15 @@ import {
   Patch,
   Get,
   UseGuards,
-  UseFilters,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   Body,
   Query,
   Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { FilesService } from 'src/modules/cdn/files.service';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
@@ -41,16 +40,29 @@ export class UsersController {
   }
   @UseGuards(AuthGuard('jwt'))
   @Post('changeAvatar')
-  @UseInterceptors(FileInterceptor('avatar', { storage: memoryStorage() }))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'croppedAvatar', maxCount: 1 },
+        { name: 'originalAvatar', maxCount: 1 },
+      ],
+      { storage: memoryStorage() },
+    ),
+  )
   async changeAvatar(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      croppedAvatar: Express.Multer.File[];
+      originalAvatar?: Express.Multer.File[];
+    },
     @Req() req: any,
   ) {
-    if (!file) {
-      throw new Error('Файл загубився по дорозі!');
+    const croppedURL = (await this.filesService.uploadFile(files.croppedAvatar[0])).data.url
+    let originalURL = null
+    if(files.originalAvatar && files.originalAvatar[0]) {
+      originalURL = (await this.filesService.uploadFile(files.originalAvatar[0])).data.url
     }
-    const cdnData = await this.filesService.uploadFile(file);
-    return this.userService.changeAvatar(cdnData.data.url, req.user.id);
+    return this.userService.changeAvatar({croppedURL, originalURL}, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))

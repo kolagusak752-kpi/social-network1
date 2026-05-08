@@ -16,9 +16,10 @@ export class UsersService {
       }
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
+        include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
       });
     if (!user) {
-      throw new NotFoundException('Пользователь с этим айди не найден');
+      throw new NotFoundException('Користувач з таким айді не знайдений');
     }
     const { passwordHash, ...UserWithoutPassword } = user;
     this.cache.set(userId, UserWithoutPassword);
@@ -28,34 +29,64 @@ export class UsersService {
   }
   }
 
-  async changeAvatar(avatarURL: string, userId: string) {
-    const oldAvatar = await this.prisma.user.findUnique({
+  async changeAvatar(avatarURLs: {croppedURL: string, originalURL: string | null}, userId: string) {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { avatar: true },
-    })
-    await this.prisma.user.update({
-        where: { id: userId },
-        data: { avatar: avatarURL },
+      include: { avatars: {select: {originalAvatarUrl: true, url: true}} },},
+    );
+    if (!user) {
+      throw new NotFoundException('Користувач з таким айді не знайдений');
+    }
+    const cachedUser = this.cache.get(userId);
+    if (cachedUser) {
+      this.cache.delete(userId);
+    }
+    const updateData: any = {url: avatarURLs.croppedURL};
+    if(avatarURLs.originalURL) {
+      updateData.originalAvatarUrl = avatarURLs.originalURL;
+    }
+      
+    const oldAvatars = user?.avatars
+    await this.prisma.media.upsert({
+        where: { userId: userId },
+        update: updateData,
+        create: { originalAvatarUrl: avatarURLs.originalURL || avatarURLs.croppedURL, url: avatarURLs.croppedURL, userId: userId, type: "AVATAR" },
       });
-    this.queue.add(async () => {
-      if(oldAvatar?.avatar) {
-        await this.filesService.deleteFile(oldAvatar.avatar);
+      const updatedUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
+      });
+      if (!updatedUser) {
+        throw new NotFoundException('Користувач з таким айді не знайдений');
       }
-    });
+      const { passwordHash, ...userWithoutPassword } = updatedUser;
+      this.cache.set(userId, userWithoutPassword);
+      this.queue.add(async () => {
+        if(avatarURLs.originalURL && oldAvatars?.originalAvatarUrl) {
+          await this.filesService.deleteFile(oldAvatars.originalAvatarUrl)
+        }
+        if(oldAvatars?.url) {
+          await this.filesService.deleteFile(oldAvatars.url)
+        }
+      })
   }
 
   async update(userId: string, dto: UpdateProfileDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      throw new NotFoundException('Пользователь с этим айди не найден');
+      throw new NotFoundException('Користувач з таким айді не знайдений');
+    }
+    const cachedUser = this.cache.get(userId);
+    if (cachedUser) {
+      this.cache.delete(userId);
     }
     this.cache.delete(userId);
-    const updated = await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: dto,
     });
-    const { passwordHash, ...result } = updated;
+    const { passwordHash, ...result } = updatedUser;
     this.cache.set(userId, result);
     return result;
   }
@@ -84,6 +115,7 @@ export class UsersService {
             { email: { contains: query, mode: 'insensitive' } },
           ],
         },
+        include: { avatars: { select: { url: true } } },
       });
       if (!userData || userData.length === 0) {
         throw new NotFoundException('Користувача не знайдено');

@@ -12,7 +12,7 @@ model User {
   email            String   @unique 
   username         String   @unique
   passwordHash     String
-  avatar           String?
+  avatars          Media?
   bio              String?
   isPrivate        Boolean  @default(false)
   verificationCode String?
@@ -66,10 +66,14 @@ model Post {
 
 model Media {
   id       String @id @default(uuid())
-  postId   String
-  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
+  postId   String?
+  post     Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
   url      String
+  originalAvatarUrl  String?
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   type     MediaType
   order    Int    @default(0) 
   
@@ -83,6 +87,7 @@ model Media {
 enum MediaType {
   IMAGE
   VIDEO
+  AVATAR
 }
 
 model Like {
