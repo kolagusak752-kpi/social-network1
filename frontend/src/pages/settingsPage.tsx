@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import type { User } from "../types/interfaces";
 import { usersApi } from "../api/users";
 import { authApi } from "../api/auth";
-import CropContainer from "../components/CropCotainer/CropContainer";
+import CropContainer from "../components/CropContainer/CropContainer";
 
 export default function Settings() {
   const location = useLocation();
@@ -39,7 +39,7 @@ export default function Settings() {
     setIsModalOpen(true);
     e.target.value = "";
   }
-  async function handleChangeAvatar(croppedFile?: File) {
+  async function handleChangeAvatar(croppedFile: File) {
     const formData = new FormData();
     const originalFile = originalAvatar
     if(!croppedFile) return
@@ -56,7 +56,7 @@ export default function Settings() {
   }
   return (
     <>{isModalOpen && (
-      <CropContainer fileURL = {originalAvatarURL} onClose={() => setIsModalOpen(false)} handleupload={handleChangeAvatar}/>
+      <CropContainer fileURL = {originalAvatarURL} onClose={() => setIsModalOpen(false)} handleUpload={handleChangeAvatar}/>
     )}
       <div className="main-wrapper-settings">
         <section className="profile-block">

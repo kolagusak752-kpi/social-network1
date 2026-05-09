@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { AuthPage,HomePage, ProfilePage } from "./pages";
 import { useAuth } from "./context/AuthContext";
 import SettingsPage from "./pages/SettingsPage";
-import CropContainer from "./components/CropCotainer/CropContainer";
+import CropContainer from "./components/CropContainer/CropContainer";
 import Loader from "./components/Loading/Loader";
 import Messenger from "./pages/Messenger";
 import DefaultLayout from "./layouts/DefaultLayout";
