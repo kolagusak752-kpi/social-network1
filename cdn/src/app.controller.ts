@@ -7,7 +7,6 @@ import {
   MaxFileSizeValidator,
   UploadedFile,
   BadRequestException,
-  Header,
   Param,
   StreamableFile,
   NotFoundException,

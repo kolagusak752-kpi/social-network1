@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
-import { PrismaService} from 'prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
+import { PrismaService } from 'prisma/prisma.service';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { CacheService } from './cache.service';
 import { QueueService } from './queue.service';
@@ -7,33 +12,43 @@ import { FilesService } from 'src/modules/cdn/files.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private cache: CacheService, private queue: QueueService, private filesService: FilesService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cache: CacheService,
+    private queue: QueueService,
+    private filesService: FilesService,
+  ) {}
   async findUserById(userId: string) {
-    try{
+    try {
       const cachedUser = this.cache.get(userId);
       if (cachedUser) {
         return cachedUser;
       }
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
+        include: {
+          avatars: { select: { originalAvatarUrl: true, url: true } },
+        },
       });
-    if (!user) {
-      throw new NotFoundException('Користувач з таким айді не знайдений');
+      if (!user) {
+        throw new NotFoundException('Користувач з таким айді не знайдений');
+      }
+      const { passwordHash, ...UserWithoutPassword } = user;
+      this.cache.set(userId, UserWithoutPassword);
+      return UserWithoutPassword;
+    } catch (e) {
+      console.log(e);
     }
-    const { passwordHash, ...UserWithoutPassword } = user;
-    this.cache.set(userId, UserWithoutPassword);
-    return UserWithoutPassword;
-  }catch(e) {
-   console.log(e)
-  }
   }
 
-  async changeAvatar(avatarURLs: {croppedURL: string, originalURL: string | null}, userId: string) {
+  async changeAvatar(
+    avatarURLs: { croppedURL: string; originalURL: string | null },
+    userId: string,
+  ) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { avatars: {select: {originalAvatarUrl: true, url: true}} },},
-    );
+      include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
+    });
     if (!user) {
       throw new NotFoundException('Користувач з таким айді не знайдений');
     }
@@ -41,34 +56,39 @@ export class UsersService {
     if (cachedUser) {
       this.cache.delete(userId);
     }
-    const updateData: any = {url: avatarURLs.croppedURL};
-    if(avatarURLs.originalURL) {
+    const updateData: any = { url: avatarURLs.croppedURL };
+    if (avatarURLs.originalURL) {
       updateData.originalAvatarUrl = avatarURLs.originalURL;
     }
-      
-    const oldAvatars = user?.avatars
+
+    const oldAvatars = user?.avatars;
     await this.prisma.media.upsert({
-        where: { userId: userId },
-        update: updateData,
-        create: { originalAvatarUrl: avatarURLs.originalURL || avatarURLs.croppedURL, url: avatarURLs.croppedURL, userId: userId, type: "AVATAR" },
-      });
-      const updatedUser = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
-      });
-      if (!updatedUser) {
-        throw new NotFoundException('Користувач з таким айді не знайдений');
+      where: { userId: userId },
+      update: updateData,
+      create: {
+        originalAvatarUrl: avatarURLs.originalURL || avatarURLs.croppedURL,
+        url: avatarURLs.croppedURL,
+        userId: userId,
+        type: 'AVATAR',
+      },
+    });
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { avatars: { select: { originalAvatarUrl: true, url: true } } },
+    });
+    if (!updatedUser) {
+      throw new NotFoundException('Користувач з таким айді не знайдений');
+    }
+    const { passwordHash, ...userWithoutPassword } = updatedUser;
+    this.cache.set(userId, userWithoutPassword);
+    this.queue.add(async () => {
+      if (avatarURLs.originalURL && oldAvatars?.originalAvatarUrl) {
+        await this.filesService.deleteFile(oldAvatars.originalAvatarUrl);
       }
-      const { passwordHash, ...userWithoutPassword } = updatedUser;
-      this.cache.set(userId, userWithoutPassword);
-      this.queue.add(async () => {
-        if(avatarURLs.originalURL && oldAvatars?.originalAvatarUrl) {
-          await this.filesService.deleteFile(oldAvatars.originalAvatarUrl)
-        }
-        if(oldAvatars?.url) {
-          await this.filesService.deleteFile(oldAvatars.url)
-        }
-      })
+      if (oldAvatars?.url) {
+        await this.filesService.deleteFile(oldAvatars.url);
+      }
+    });
   }
 
   async update(userId: string, dto: UpdateProfileDto) {
@@ -110,21 +130,27 @@ export class UsersService {
       if (!query || query.length < 2) return [];
       const userData = await this.prisma.user.findMany({
         where: {
-          OR: [
-            { username: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-          ],
+          username: { contains: query, mode: 'insensitive' },
         },
         include: { avatars: { select: { url: true } } },
       });
       if (!userData || userData.length === 0) {
         throw new NotFoundException('Користувача не знайдено');
       }
-      const users = userData.map((user) => {
-          const { passwordHash, email, createdAt, isVerified, isPrivate, updatedAt, ...userWithoutPassword } = user;
+      const users = userData
+        .map((user) => {
+          const {
+            passwordHash,
+            email,
+            createdAt,
+            isVerified,
+            isPrivate,
+            updatedAt,
+            ...userWithoutPassword
+          } = user;
           return userWithoutPassword;
-
-      }).filter((user) => user.id !== userId);
+        })
+        .filter((user) => user.id !== userId);
 
       return users;
     } catch (error) {

@@ -31,11 +31,6 @@ model User {
   
   followers     Follow[]     @relation("UserFollowers")
   following     Follow[]     @relation("UserFollowing")
-  
-  savedPosts    SavedPost[]
-  
-  notifications Notification[] @relation("NotificationRecipient")
-  sentNotifications Notification[] @relation("NotificationSender")
 
   @@map("users")
 }
@@ -45,19 +40,16 @@ model Post {
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   
-  caption     String?  @db.Text
-  location    String?
-  
   likesCount     Int @default(0)
   commentsCount  Int @default(0)
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  media       Media[]
-  likes       Like[]
+  description String
+  media      Media[]
+  likes      Like[]
   comments    Comment[]
-  savedBy     SavedPost[]
   
   @@index([authorId])
   @@index([createdAt])
@@ -111,13 +103,6 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   postId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  content   String   @db.Text
-  
-  parentId  String?
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
-  
   likesCount Int @default(0)
   
   createdAt DateTime @default(now())
@@ -125,7 +110,6 @@ model Comment {
 
   @@index([postId])
   @@index([userId])
-  @@index([parentId])
   @@map("comments")
 }
 
@@ -144,49 +128,6 @@ model Follow {
   @@index([followerId])
   @@index([followingId])
   @@map("follows")
-}
-
-model SavedPost {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-
-  @@unique([userId, postId])
-  @@index([userId])
-  @@map("saved_posts")
-}
-model Notification {
-  id         String   @id @default(uuid())
-  
-  recipientId String
-  recipient   User    @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-  
-  senderId    String?
-  sender      User?   @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
-  
-  type        NotificationType
-  content     String
-  
-  postId      String?
-  commentId   String?
-  
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  @@index([recipientId])
-  @@index([isRead])
-  @@map("notifications")
-}
-
-enum NotificationType {
-  LIKE        
-  COMMENT       
-  FOLLOW      
-  MENTION     
 }
 
 model RefreshToken {

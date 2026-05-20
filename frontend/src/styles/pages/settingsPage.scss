@@ -132,6 +132,10 @@
       font-family: "Inter", "Roboto", "Arial", sans-serif;
       transition: 0.3s ease;
 
+      &:hover {
+          transform: translate(0px, -2px);
+      }
+
       &:active {
           transform: scale(0.95);
           filter: brightness(0.9);
@@ -179,8 +183,8 @@
           width: 230px;
           color: azure;
           background-color: v.$main-bg;
-          border: 1xp solid v.$main-header;
-          outline: none;
+          outline: solid 1px grey;
+          border: none;
           // outline-offset: 0px;
           text-decoration: none;
       }
@@ -217,6 +221,7 @@
       padding: 30px;
       color: azure;
       border-radius: 8%;
+
   }
 
   .exit-buttons {

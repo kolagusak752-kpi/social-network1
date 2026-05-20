@@ -1,0 +1,148 @@
+@use "../variables/root" as v;
+$accent: #3f5c84;
+.main-post-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background-color: v.$main-bg;
+}
+.post-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    height: auto;
+    background-color: v.$main-bg;
+}
+.post-container {
+    background-color: rgb(255, 255, 255);
+    width: 700px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.post-user-info {
+    color: rgb(255, 255, 255);
+    background-color: #131e20;
+    outline: none;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    border-bottom: solid 1px white;
+
+
+    .post-user-avatar {
+        overflow: hidden;
+        margin-left: 10px;
+        height: 60px;
+        width: 60px;
+        border-radius: 50%;
+        background-color: rgb(255, 255, 255);
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+        }
+    }
+
+    .post-user-name {
+        font-size: 16px;
+    }
+
+}
+
+.post-add-file {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 340px;
+    width: 100%;
+    background-color: #131e20;
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+}
+
+.post-description {
+    border: none;
+    border-top: solid 1px white;
+    padding: 10px;
+    height: 80px;
+    width: 100%;
+    scrollbar-width: none;
+    resize: none;
+    outline: none;
+    background-color: #131e20;
+    box-sizing: border-box;
+}
+
+.post-buttons {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.add-file-label {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #131e20;
+
+    .add-file-icon {
+        height: 50px;
+        width: 50px;
+    }
+
+    &:hover {
+        background: $accent;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+.share-post {
+    width: 80px;
+    height: 40px;
+    border-radius: 3px;
+    ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #131e20;
+    outline: none;
+    border: none;
+    transition: 0.3s ease;
+
+    &:hover {
+        background: $accent;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}

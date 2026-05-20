@@ -8,6 +8,7 @@ import Loader from "./components/Loading/Loader";
 import Messenger from "./pages/Messenger";
 import DefaultLayout from "./layouts/DefaultLayout";
 import { io } from "socket.io-client";
+import CreatePost from "./pages/CreatePost";
 
 const URL = "http://localhost:4200";
 export const socket = io(URL, { autoConnect: false });
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/editAvatar" element={<CropContainer />} />
           <Route path="/messenger" element={<Messenger />} />
+          <Route path="/create-post" element={<CreatePost />} />
         </Route>
       </Route>
     </Routes>
