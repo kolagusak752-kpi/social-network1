@@ -199,17 +199,19 @@ export default function Settings() {
     </>
   );
 
-  async function handleUpdateProfile() {
-    if (newUser === null) return;
-    const {
-      updatedAt,
-      createdAt,
-      isVerified,
-      email,
-      id,
-      ...newUserWithoutOthers
-    } = newUser;
-    await usersApi.updateProfile(newUserWithoutOthers);
-    await checkAuth();
+    async function handleUpdateProfile() {
+      if (newUser === null) return;
+      const {
+        updatedAt,
+        createdAt,
+        isVerified,
+        email,
+        id,
+        avatars,
+        posts,
+        ...newUserWithoutOthers
+      } = newUser;
+      await usersApi.updateProfile(newUserWithoutOthers);
+      await checkAuth();
+    }
   }
-}

@@ -11,7 +11,9 @@ export default function ProfilePage() {
   const [clickedPost, setClickedPost] = useState<any>(null);
   useEffect(() => {
     if (!userId) return;
-    usersApi.getProfile(userId).then(setUserData).catch(console.log);
+    console.log("я сработал");
+    usersApi.getProfile(userId).then((data) => {console.log(data?.posts)
+    setUserData(data)}).catch(console.log);
   }, [userId]);
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -30,7 +32,7 @@ export default function ProfilePage() {
           <div className="post-container">
             <div className="post-user-info">
               <div className="post-user-avatar">
-                <img src={userData?.avatars?.url} className="avatar-img"></img>
+                <img src={userData?.avatars?.url} className="avatar-img" alt="Avatar" />
               </div>
               <p className="post-user-name">{userData?.username}</p>
             </div>
@@ -61,7 +63,7 @@ export default function ProfilePage() {
       )}
       <section className="info-block">
         <div className="avatar-image">
-          <img src={userData?.avatars?.url} alt="Avatar" />
+          <img src={userData?.avatars?.url} alt="тут має бути аватар" />
         </div>
         <div className="user-info">
           <p>{userData?.username}</p>

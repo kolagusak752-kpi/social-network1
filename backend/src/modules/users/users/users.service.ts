@@ -30,12 +30,12 @@ export class UsersService {
           avatars: {
             select: { originalAvatarUrl: true, url: true },
           },
-          posts:{
-            include: {media:true}
-          }
+          posts: {
+            include: { media: true },
+          },
         },
       });
-      console.log(user)
+      console.log(user);
       if (!user) {
         throw new NotFoundException('Користувач з таким айді не знайдений');
       }
@@ -111,6 +111,10 @@ export class UsersService {
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: dto,
+      include: {
+        avatars: { select: { originalAvatarUrl: true, url: true } },
+        posts: { include: { media: true } },
+      },
     });
     const { passwordHash, ...result } = updatedUser;
     this.cache.set(userId, result);
