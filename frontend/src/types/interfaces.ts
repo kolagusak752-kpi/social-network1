@@ -8,6 +8,7 @@ export interface User {
   updatedAt: string;
   isVerified: boolean;
   createdAt: string;
+  posts: { id: number, content: string, createdAt: string, media: any[], description: string }[]
 }
 export interface AuthContext {
   user: User | null;

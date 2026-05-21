@@ -27,9 +27,15 @@ export class UsersService {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         include: {
-          avatars: { select: { originalAvatarUrl: true, url: true } },
+          avatars: {
+            select: { originalAvatarUrl: true, url: true },
+          },
+          posts:{
+            include: {media:true}
+          }
         },
       });
+      console.log(user)
       if (!user) {
         throw new NotFoundException('Користувач з таким айді не знайдений');
       }
